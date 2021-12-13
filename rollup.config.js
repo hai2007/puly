@@ -5,8 +5,8 @@ const extensions = ['.js', '.ts'];
 export default {
     input: "./src/index.ts",
     output: {
-        name: 'ThreeManager',
-        file: "./dist/three-manager.js",
+        name: 'Puly',
+        file: "./dist/puly.js",
         /**
          * amd – 异步模块定义，用于像 RequireJS 这样的模块加载器
          * cjs – CommonJS，适用于 Node 和 Browserify/Webpack

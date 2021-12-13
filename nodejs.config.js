@@ -13,15 +13,15 @@ module.exports = {
     task(nodejs, pkg, rootPath) {
 
         [
-            'three-manager.js',
-            'three-manager.min.js'
+            'puly.js',
+            'puly.min.js'
         ].forEach(item => {
 
             let filePath = path.join(rootPath, "./dist/" + item);
 
             let banner =
                 `/*!
- * Three Manager - ${pkg.description}
+ * puly - ${pkg.description}
  * ${pkg.repository.url}
  *
  * author ${pkg.author} < https://hai2007.gitee.io/sweethome >

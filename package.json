@@ -1,17 +1,17 @@
 {
-  "name": "three-manager",
+  "name": "puly",
   "version": "0.1.0-alpha.0",
   "description": "基于Image3D.js开发，底层依赖webgl实现，通过配置和简单的方法调用，可以快速实现三维数据可视化和VR效果等。",
-  "main": "",
+  "main": "./dist/puly.min.js",
   "scripts": {
     "start": "npm install && npm run build",
     "build": "npm run rollup && npm run uglifyjs && nodejs --config ./nodejs.config.js",
     "rollup": "rollup --config rollup.config.js",
-    "uglifyjs": "uglifyjs ./dist/three-manager.js -m -o ./dist/three-manager.min.js"
+    "uglifyjs": "uglifyjs ./dist/puly.js -m -o ./dist/puly.min.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hai2007/Three-Manager.git"
+    "url": "git+https://github.com/hai2007/puly.git"
   },
   "keywords": [
     "image3d",
@@ -23,9 +23,9 @@
   "author": "你好2007",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hai2007/Three-Manager/issues"
+    "url": "https://github.com/hai2007/puly/issues"
   },
-  "homepage": "https://github.com/hai2007/Three-Manager#readme",
+  "homepage": "https://github.com/hai2007/puly#readme",
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.16.0",
