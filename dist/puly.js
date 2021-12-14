@@ -9,7 +9,7 @@
  * Copyright (c) 2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon Dec 13 2021 20:28:36 GMT+0800 (GMT+08:00)
+ * Date:Tue Dec 14 2021 16:37:26 GMT+0800 (中国标准时间)
  */
 (function () {
   'use strict';
@@ -36,9 +36,59 @@
     }
   }
 
-  var Puly = function Puly() {
-    _classCallCheck(this, Puly);
-  }; // 对外暴露调用接口
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  var Puly = /*#__PURE__*/function () {
+    // 几何体
+    // 光照
+    // 相机
+    function Puly() {
+      _classCallCheck(this, Puly);
+
+      _defineProperty(this, "geometry", void 0);
+
+      _defineProperty(this, "light", void 0);
+
+      _defineProperty(this, "camera", void 0);
+    } // 绘制
+
+
+    _createClass(Puly, [{
+      key: "draw",
+      value: function draw() {}
+    }]);
+
+    return Puly;
+  }(); // 对外暴露调用接口
 
 
   if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
