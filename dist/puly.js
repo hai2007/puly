@@ -9,7 +9,7 @@
  * Copyright (c) 2021 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Fri Dec 17 2021 16:27:01 GMT+0800 (中国标准时间)
+ * Date:Fri Dec 17 2021 16:40:49 GMT+0800 (中国标准时间)
  */
 (function () {
   'use strict';
@@ -1298,8 +1298,28 @@
        * 相机相关
        * -------------------------------
       */
-      // todo
 
+    }, {
+      key: "rotate",
+      value: function rotate(deg, a1, b1, c1, a2, b2, c2) {
+        this.__camera.rotate(-1 * deg, a1, b1, c1, a2, b2, c2);
+
+        return this;
+      }
+    }, {
+      key: "scale",
+      value: function scale(xTimes, yTimes, zTimes, cx, cy, cz) {
+        this.__camera.scale(xTimes, yTimes, zTimes, cx, cy, cz);
+
+        return this;
+      }
+    }, {
+      key: "move",
+      value: function move(dis, a, b, c) {
+        this.__camera.move(-1 * dis, a, b, c);
+
+        return this;
+      }
       /**
        * -------------------------------
        * 光照相关
@@ -1317,8 +1337,6 @@
 
 
         painter.openDeep(); // 设置相机
-
-        console.log(this.__camera.value());
 
         this.__core.setUniformMatrix4fv('u_matrix', this.__camera.value()); // 一个个绘制几何体
 

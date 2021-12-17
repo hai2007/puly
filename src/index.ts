@@ -94,7 +94,20 @@ class Puly {
      * -------------------------------
     */
 
-    // todo
+    rotate(deg, a1, b1, c1, a2, b2, c2) {
+        this.__camera.rotate(-1 * deg, a1, b1, c1, a2, b2, c2)
+        return this
+    }
+
+    scale(xTimes, yTimes, zTimes, cx, cy, cz) {
+        this.__camera.scale(xTimes, yTimes, zTimes, cx, cy, cz)
+        return this
+    }
+
+    move(dis, a, b, c) {
+        this.__camera.move(-1 * dis, a, b, c)
+        return this
+    }
 
     /**
      * -------------------------------
@@ -114,7 +127,6 @@ class Puly {
         painter.openDeep()
 
         // 设置相机
-        console.log(this.__camera.value())
         this.__core.setUniformMatrix4fv('u_matrix', this.__camera.value())
 
         // 一个个绘制几何体
