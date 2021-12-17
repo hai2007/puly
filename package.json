@@ -5,6 +5,7 @@
   "main": "./dist/puly.min.js",
   "scripts": {
     "start": "npm install && npm run build",
+    "dev": "rollup --config rollup.config.js --watch",
     "build": "npm run rollup && npm run uglifyjs && nodejs --config ./nodejs.config.js",
     "rollup": "rollup --config rollup.config.js",
     "uglifyjs": "uglifyjs ./dist/puly.js -m -o ./dist/puly.min.js"
@@ -42,6 +43,7 @@
   },
   "dependencies": {
     "@hai2007/algorithm": "^0.7.3",
+    "@hai2007/browser": "^0.2.0",
     "@hai2007/tool": "^1.0.0",
     "image3d": "^3.2.4",
     "three-geometry": "^1.1.2"
