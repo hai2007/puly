@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.0
+ * version 0.1.1
  *
- * Copyright (c) 2021 hai2007 走一步，再走一步。
+ * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Jan 06 2022 09:18:06 GMT+0800 (中国标准时间)
+ * Date:Thu Feb 10 2022 11:16:12 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1254,20 +1254,23 @@
       // 核心画笔
       this.__core = image3DCore(options.el);
 
-      this.__core.shader("\n    attribute vec4 a_position;\n    uniform mat4 u_matrix;\n    void main(){\n        gl_Position=u_matrix * a_position;\n    }\n    ", "\n    precision mediump float;\n    uniform vec4 u_color;\n    void main(){\n        gl_FragColor=u_color;\n    }\n    "); // 几何体
+      this.__core.shader("\n    attribute vec4 a_position;\n    uniform mat4 u_matrix;\n    void main(){\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n    }\n    ", "\n    precision mediump float;\n    uniform vec4 u_color;\n    void main(){\n        gl_FragColor=u_color;\n    }\n    ");
 
+      var size = xhtml.size(options.el); // 几何体
 
       this.__geometry = [];
       this.__ThreeGeometry = threeGeometry_min({
-        precision: 0.02
+        precision: Math.max(size.width, size.height) * 0.02
       }); // 光照
 
       this.__light = []; // 相机
 
-      var size = xhtml.size(options.el);
-      this.__camera = Matrix4(); // 相机应用压缩空间矩阵
+      this.__camera = Matrix4();
 
-      this.__camera.multiply([2 / size.width, 0, 0, 0, 0, 2 / size.height, 0, 0, 0, 0, 2 / (size.width > size.height ? size.width : size.height), 0, 0, 0, 0, 1]);
+      var _size = size.width > size.height ? size.width : size.height; // 相机应用压缩空间矩阵
+
+
+      this.__camera.multiply([2 / _size, 0, 0, 0, 0, 2 / _size, 0, 0, 0, 0, -2 / _size, 0, 0, 0, 0, 1]);
     }
     /**
      * -------------------------------

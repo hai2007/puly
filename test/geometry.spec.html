@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../logo.png">
     <script src="../dist/puly.js"></script>
-    <title>主体设计 | 第一个运行效果</title>
+    <title>测试 | 几何体</title>
 </head>
 
 <body>
@@ -24,24 +24,44 @@
 
         });
 
-        // 添加一个红色的圆柱体
+        // 添加一个圆柱体
         var cylinder = puly.geometry({
             type: 'cylinder',
             x: 0, y: 0, z: 0,
-            radius: 200, height: 200,
+            radius: 50, height: 60,
             color: "red"
         });
 
         cylinder.setValue({
             color: 'blue',
-            y: -200
+            y: -50
         });
 
-        puly.rotate(0.3, 1, 0, 0)
-        // .move(0.5,1,0,0)
+        // 添加一个球体
+        var sphere = puly.geometry({
+            type: 'sphere',
+            cx: -50, cy: 50, cz: 0, radius: 30,
+            color: "red"
+        });
 
-        // 最后绘制
-        puly.draw();
+        // 添加一个棱柱体
+        var prism = puly.geometry({
+            type: 'prism',
+            x: 20, y: 10, z: 0,
+            radius: 20, height: 100,
+            num: 6,
+            color: "yellow"
+        });
+
+        setInterval(() => {
+
+            // 修改相机
+            puly.rotate(0.1, 1, 0, 0)
+
+            // 最后绘制
+            puly.draw();
+
+        }, 50)
 
     </script>
 

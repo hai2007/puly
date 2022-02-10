@@ -32,7 +32,14 @@ class Puly {
     attribute vec4 a_position;
     uniform mat4 u_matrix;
     void main(){
-        gl_Position=u_matrix * a_position;
+        vec4 temp = u_matrix * a_position;
+
+        // 表示眼睛距离vec4(0.0,0.0,1.0)的距离
+        float dist = 2.0;
+
+        // 使用投影直接计算
+        // 此处要注意z轴承显示和实际的方向是相反的
+        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);
     }
     `, `
     precision mediump float;
@@ -42,24 +49,27 @@ class Puly {
     }
     `)
 
+        let size = xhtml.size(options.el)
+
         // 几何体
         this.__geometry = []
         this.__ThreeGeometry = ThreeGeometry({
-            precision: 0.02
+            precision: Math.max(size.width, size.height) * 0.02
         })
 
         // 光照
         this.__light = []
 
         // 相机
-        let size = xhtml.size(options.el)
         this.__camera = Matrix4()
+
+        let _size = size.width > size.height ? size.width : size.height
 
         // 相机应用压缩空间矩阵
         this.__camera.multiply([
-            2 / size.width, 0, 0, 0,
-            0, 2 / size.height, 0, 0,
-            0, 0, 2 / (size.width > size.height ? size.width : size.height), 0,
+            2 / _size, 0, 0, 0,
+            0, 2 / _size, 0, 0,
+            0, 0, -2 / _size, 0,
             0, 0, 0, 1
         ])
 
