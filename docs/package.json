@@ -7,9 +7,11 @@
     "dev": "etcpack_dev --config etcpack.dev.js"
   },
   "dependencies": {
+    "@hai2007/browser": "^0.3.4",
     "@hai2007/polyfill": "^0.2.0",
     "@hai2007/style": "^0.3.0",
     "nefbl": "^0.2.6",
+    "open-web-editor": "^0.3.2",
     "puly": "^0.1.0",
     "sprout-ui": "^0.2.2"
   },

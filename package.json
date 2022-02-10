@@ -28,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/hai2007/puly/issues"
   },
-  "homepage": "https://github.com/hai2007/puly#readme",
+  "homepage": "https://hai2007.github.io/puly/",
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.16.0",
