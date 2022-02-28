@@ -1,7 +1,5 @@
 <p align='center'>
-    <a href='https://hai2007.github.io/puly/' target='_blank'>
-        <img src='./logo.png'>
-    </a>
+    <img src='./logo.png'>
 </p>
 
 # puly
@@ -119,8 +117,6 @@ a1、b1、c1、a2、b2和c2这6个值在设置的时候，不是一定需要全�
 1.只设置了a1和b1，表示在xoy平面围绕（a1, b1）旋转。
 
 2.设置三个点(设置不足六个点都认为只设置了三个点)，表示围绕从原点出发的射线旋转
-
-更多细节请[点击文档](https://hai2007.github.io/puly/)了解更多~
 
 开源协议
 ---------------------------------------
