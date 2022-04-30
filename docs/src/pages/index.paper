@@ -1,0 +1,131 @@
+<template>
+    <header>
+        <h2>Puly</h2>
+        <ul>
+            <li :active="flag=='home'?'yes':'no'" @click="loadpage('home')">
+                首页
+            </li>
+            <li :active="flag=='api'?'yes':'no'" @click="loadpage('api')">
+                文档
+            </li>
+            <li :active="flag=='example'?'yes':'no'" @click="loadpage('example')">
+                例子
+            </li>
+        </ul>
+        <div>
+            <a class="normal" href="https://github.com/clunch-contrib" target="_blank">开源社区</a>
+            <ui-search></ui-search>
+            <a class="github" href="https://github.com/hai2007/puly" target="_blank">github</a>
+        </div>
+    </header>
+    <component :is='page'></component>
+</template>
+<script>
+
+    import uiSearch from '../components/ui-search.paper';
+
+
+    let pages = {
+        home: () => import('./home.paper'),
+        api: () => import('./api/index.paper'),
+        example: () => import('./example/index.paper')
+    };
+
+    export default {
+        data() {
+            return {
+                page: null,
+                flag: ""
+            };
+        },
+        mounted() {
+            let routers = this.$urlFormat(window.location.href).router;
+            this.loadpage(routers[1] in pages ? routers[1] : "home");
+
+        },
+        methods: {
+            loadpage(url) {
+                pages[url]().then(data => {
+                    this.page = data.default;
+                    this.flag = url;
+                });
+            }
+        },
+        component: {
+            uiSearch
+        }
+    };
+</script>
+<style lang="scss">
+    [quickpaper] {
+
+        header {
+            color: #74b1be;
+            background-color: #2f3241;
+            border-bottom: 1px solid #e8e8e8;
+            border-bottom-color: #1a1b23;
+            line-height: 70px;
+            padding: 0 20px;
+
+            h2 {
+                display: inline-block;
+                padding-left: 50px;
+                background-image: url('./src/assets/logo.png');
+                background-size: auto 70%;
+                background-repeat: no-repeat;
+                background-position: left center;
+            }
+
+            &>ul {
+                display: inline-block;
+
+                &>li {
+                    display: inline-block;
+                    margin-left: 30px;
+                    padding: 0 5px;
+                    line-height: 30px;
+                    cursor: pointer;
+
+                    &[active='yes'] {
+                        border-bottom: 2px solid #74b1be;
+                        font-weight: 800;
+                    }
+
+                    &[active='no'] {
+                        &:hover {
+                            outline: 1px solid gray;
+                        }
+                    }
+                }
+            }
+
+            &>div {
+                float: right;
+
+                &>a {
+                    display: inline-block;
+                    vertical-align: top;
+
+                    &.normal {
+                        color: #74b1be;
+                        padding: 0 20px;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+
+                    &.github {
+                        background-image: url('./src/assets/github.png');
+                        background-size: auto 70%;
+                        background-repeat: no-repeat;
+                        background-position: center center;
+                        width: 70px;
+                        font-size: 0;
+
+                    }
+                }
+            }
+        }
+    }
+</style>

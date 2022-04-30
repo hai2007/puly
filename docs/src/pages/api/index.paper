@@ -1,0 +1,3 @@
+<template>
+    文档
+</template>

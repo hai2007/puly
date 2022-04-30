@@ -1,8 +1,9 @@
 {
   "name": "puly",
-  "version": "0.1.1",
+  "version": "1.0.0-alpha.0",
   "description": "基于Image3D.js开发，底层依赖webgl实现，通过配置和简单的方法调用，可以快速实现三维数据可视化和VR效果等。",
   "main": "./dist/puly.min.js",
+  "typings": "types/index.d.ts",
   "scripts": {
     "start": "npm install && npm run build",
     "dev": "rollup --config rollup.config.js --watch",
@@ -28,7 +29,7 @@
   "bugs": {
     "url": "https://github.com/hai2007/puly/issues"
   },
-  "homepage": "https://github.com/hai2007/big-screen-dataview#readme",
+  "homepage": "https://hai2007.github.io/puly",
   "devDependencies": {
     "@babel/core": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.16.0",
@@ -36,7 +37,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.16.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-typescript": "^7.16.0",
-    "@hai2007/nodejs": "^2.2.0",
+    "@hai2007/nodejs": "^3.0.1",
     "@rollup/plugin-babel": "^5.3.0",
     "rollup": "^1.17.0",
     "rollup-plugin-commonjs": "^10.0.1",
@@ -44,10 +45,10 @@
     "uglify-js": "^3.10.2"
   },
   "dependencies": {
-    "@hai2007/algorithm": "^0.7.3",
-    "@hai2007/browser": "^0.3.4",
-    "@hai2007/tool": "^1.1.0",
-    "image3d": "^3.2.5",
+    "@hai2007/algorithm": "^0.7.6",
+    "@hai2007/browser": "^0.3.5",
+    "@hai2007/tool": "^1.2.0",
+    "image3d": "^3.4.0",
     "three-geometry": "^1.1.3"
   }
 }

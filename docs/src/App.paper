@@ -1,0 +1,29 @@
+<template>
+    <component :is='page'></component>
+</template>
+<script>
+
+    let pages = {
+        main: () => import('./pages/index.paper')
+    };
+
+    export default {
+        data() {
+            return {
+                page: null,
+            };
+        },
+        mounted() {
+            let routers = this.$urlFormat(window.location.href).router;
+            this.loadpage(routers[0] in pages ? routers[0] : "main");
+
+        },
+        methods: {
+            loadpage(url) {
+                pages[url]().then(data => {
+                    this.page = data.default;
+                });
+            }
+        }
+    };
+</script>
