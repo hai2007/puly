@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主体设计测试</title>
+    <script src="../dist/puly.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 90vw;
+            height: 90vh;
+            margin: 5vh 5vw;
+            outline: 1px solid red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+        // 设置好主题色
+        Puly.registerTheme({
+            "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+        });
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+
+        });
+
+    </script>
+
+</body>
+
+</html>

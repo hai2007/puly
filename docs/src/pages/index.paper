@@ -44,8 +44,9 @@
 
         },
         methods: {
-            loadpage(url) {
+            loadpage(url, flag) {
                 pages[url]().then(data => {
+                    if (flag) window.location.href = "#/main/" + url;
                     this.page = data.default;
                     this.flag = url;
                 });
@@ -61,16 +62,16 @@
 
         header {
             color: #74b1be;
-            background-color: #2f3241;
             border-bottom: 1px solid #e8e8e8;
             border-bottom-color: #1a1b23;
             line-height: 70px;
             padding: 0 20px;
+            box-shadow: 0px 1px 20px 4px black;
 
             h2 {
                 display: inline-block;
                 padding-left: 50px;
-                background-image: url('./src/assets/logo.png');
+                background-image: url('./image/logo.png');
                 background-size: auto 70%;
                 background-repeat: no-repeat;
                 background-position: left center;
@@ -116,7 +117,7 @@
                     }
 
                     &.github {
-                        background-image: url('./src/assets/github.png');
+                        background-image: url('./image/github.png');
                         background-size: auto 70%;
                         background-repeat: no-repeat;
                         background-position: center center;

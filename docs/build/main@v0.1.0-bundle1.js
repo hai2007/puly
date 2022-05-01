@@ -58,8 +58,9 @@ var uiSearch =__etcpack__scope_args__.default;
 
         },
         methods: {
-            loadpage(url) {
+            loadpage(url, flag) {
                 pages[url]().then(data => {
+                    if (flag) window.location.href = "#/main/" + url;
                     this.page = data.default;
                     this.flag = url;
                 });
@@ -118,7 +119,7 @@ window.__etcpack__bundleSrc__['28']=function(){
             goSearch(event) {
 
                 // 如果是回车就带着数据跳转到查询界面
-                if (event.keyCode == 13) this.loadPage("https://hai2007.gitee.io/sweethome/#/search?wd=" + encodeURIComponent(this.wd));
+                if (event.keyCode == 13) this.$loadPage("https://hai2007.gitee.io/sweethome/#/search?wd=" + encodeURIComponent(this.wd));
 
             }
         }
@@ -135,7 +136,7 @@ window.__etcpack__bundleSrc__['29']=function(){
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');
 var head = document.head || document.getElementsByTagName('head')[0];
-styleElement.innerHTML = "\n [quickpaper][data-quickpaper-04c380ac]{\n\ndisplay: inline-block;\n\n}\n\n input[data-quickpaper-04c380ac]{\n\nheight: 30px;\n\nborder: none;\n\noutline: none;\n\npadding: 0 10px;\n\npadding-right: 35px;\n\nbackground-image: url('../src/assets/search.svg');\n\nbackground-position: center right;\n\nbackground-repeat: no-repeat;\n\nborder-radius: 3px;\n\nbackground-color: rgb(243 240 240);\n\n}\n";
+styleElement.innerHTML = "\n [quickpaper][data-quickpaper-04c380ac]{\n\ndisplay: inline-block;\n\n}\n\n input[data-quickpaper-04c380ac]{\n\nheight: 40px;\n\nborder: none;\n\noutline: none;\n\npadding: 0 10px;\n\npadding-right: 35px;\n\nbackground-image: url('./image/search.svg');\n\nbackground-position: center right;\n\nbackground-repeat: no-repeat;\n\nborder-radius: 20px;\n\nbackground-color: #3a585f;\n\n}\n\n input[data-quickpaper-04c380ac]::-webkit-input-placeholder{\n\ncolor: #74b1be;\n\n}\n\n input[data-quickpaper-04c380ac]:focus{\n\nbackground-color: white;\n\n}\n\n input[data-quickpaper-04c380ac]:focus::-webkit-input-placeholder{\n\nfont-size: 0;\n\n}\n";
 styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
   
     return __etcpack__scope_bundle__;
@@ -149,7 +150,7 @@ window.__etcpack__bundleSrc__['33']=function(){
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');
 var head = document.head || document.getElementsByTagName('head')[0];
-styleElement.innerHTML = "\n [quickpaper] header[data-quickpaper-48e12a3e]{\n\ncolor: #74b1be;\n\nbackground-color: #2f3241;\n\nborder-bottom: 1px solid #e8e8e8;\n\nborder-bottom-color: #1a1b23;\n\nline-height: 70px;\n\npadding: 0 20px;\n\n}\n\n [quickpaper] header h2[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\npadding-left: 50px;\n\nbackground-image: url('./src/assets/logo.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: left center;\n\n}\n\n [quickpaper] header>ul[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\n}\n\n [quickpaper] header>ul>li[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\nmargin-left: 30px;\n\npadding: 0 5px;\n\nline-height: 30px;\n\ncursor: pointer;\n\n}\n\n [quickpaper] header>ul>li[active='yes'][data-quickpaper-48e12a3e]{\n\nborder-bottom: 2px solid #74b1be;\n\nfont-weight: 800;\n\n}\n\n [quickpaper] header>ul>li[active='no'][data-quickpaper-48e12a3e]:hover{\n\noutline: 1px solid gray;\n\n}\n\n [quickpaper] header>div[data-quickpaper-48e12a3e]{\n\nfloat: right;\n\n}\n\n [quickpaper] header>div>a[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\nvertical-align: top;\n\n}\n\n [quickpaper] header>div>a.normal[data-quickpaper-48e12a3e]{\n\ncolor: #74b1be;\n\npadding: 0 20px;\n\n}\n\n [quickpaper] header>div>a.normal[data-quickpaper-48e12a3e]:hover{\n\ntext-decoration: underline;\n\n}\n\n [quickpaper] header>div>a.github[data-quickpaper-48e12a3e]{\n\nbackground-image: url('./src/assets/github.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center center;\n\nwidth: 70px;\n\nfont-size: 0;\n\n}\n";
+styleElement.innerHTML = "\n [quickpaper] header[data-quickpaper-48e12a3e]{\n\ncolor: #74b1be;\n\nborder-bottom: 1px solid #e8e8e8;\n\nborder-bottom-color: #1a1b23;\n\nline-height: 70px;\n\npadding: 0 20px;\n\nbox-shadow: 0px 1px 20px 4px black;\n\n}\n\n [quickpaper] header h2[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\npadding-left: 50px;\n\nbackground-image: url('./image/logo.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: left center;\n\n}\n\n [quickpaper] header>ul[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\n}\n\n [quickpaper] header>ul>li[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\nmargin-left: 30px;\n\npadding: 0 5px;\n\nline-height: 30px;\n\ncursor: pointer;\n\n}\n\n [quickpaper] header>ul>li[active='yes'][data-quickpaper-48e12a3e]{\n\nborder-bottom: 2px solid #74b1be;\n\nfont-weight: 800;\n\n}\n\n [quickpaper] header>ul>li[active='no'][data-quickpaper-48e12a3e]:hover{\n\noutline: 1px solid gray;\n\n}\n\n [quickpaper] header>div[data-quickpaper-48e12a3e]{\n\nfloat: right;\n\n}\n\n [quickpaper] header>div>a[data-quickpaper-48e12a3e]{\n\ndisplay: inline-block;\n\nvertical-align: top;\n\n}\n\n [quickpaper] header>div>a.normal[data-quickpaper-48e12a3e]{\n\ncolor: #74b1be;\n\npadding: 0 20px;\n\n}\n\n [quickpaper] header>div>a.normal[data-quickpaper-48e12a3e]:hover{\n\ntext-decoration: underline;\n\n}\n\n [quickpaper] header>div>a.github[data-quickpaper-48e12a3e]{\n\nbackground-image: url('./image/github.png');\n\nbackground-size: auto 70%;\n\nbackground-repeat: no-repeat;\n\nbackground-position: center center;\n\nwidth: 70px;\n\nfont-size: 0;\n\n}\n";
 styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
   
     return __etcpack__scope_bundle__;

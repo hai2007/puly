@@ -18,7 +18,7 @@ __etcpack__scope_args__=window.__etcpack__getBundle('37');
 
     script.render=function(createElement){
 
-        return createElement('div',{"quickpaper":"","data-quickpaper-aa5c6c28":""},["文档"])
+        return createElement('div',{"quickpaper":"","data-quickpaper-aa5c6c28":""},[])
 
     };
 

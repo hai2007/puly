@@ -5,7 +5,7 @@ import '@hai2007/polyfill/Promise.js';
 
 // 引入样式
 import '@hai2007/style/normalize.css';
-import './assets/style.scss';
+import './index.scss';
 
 import qCode from './directives/q-code'; QuickPaper.directive('qCode', qCode);
 import fixedScroll from './service/fixedScroll'; QuickPaper.prototype.$fixedScroll = fixedScroll;

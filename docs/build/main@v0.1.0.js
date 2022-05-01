@@ -994,14 +994,14 @@ styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
 }
 
 /*************************** [bundle] ****************************/
-// Original file:./src/assets/style.scss
+// Original file:./src/index.scss
 /*****************************************************************/
 window.__etcpack__bundleSrc__['16']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');
 var head = document.head || document.getElementsByTagName('head')[0];
-styleElement.innerHTML = "";
+styleElement.innerHTML = "\n body{\n\nbackground-color: #2f3241;\n\n}\n";
 styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
   
     return __etcpack__scope_bundle__;
