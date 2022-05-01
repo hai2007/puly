@@ -1,5 +1,5 @@
 <p align='center'>
-    <img src='./logo.png'>
+    <img src='https://hai2007.github.io/puly/image/logo.png'>
 </p>
 
 # puly

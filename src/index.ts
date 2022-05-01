@@ -4,11 +4,17 @@ import themeType from '../types/theme'
 
 import xhtml from "@hai2007/browser/xhtml"
 import observeResize from './observeResize'
+import formatTheme from './formatTheme'
+import merge from './merge'
+import calc from './calc'
 
 class Puly {
 
     private size: sizeType
     private canvas: Element
+
+    private static charts: any = {}
+    private option: optionType = {}
 
     // 主题
     private static theme: themeType
@@ -34,17 +40,44 @@ class Puly {
 
     // 设置主题
     static registerTheme(theme: themeType) {
+        Puly.theme = formatTheme(theme)
+    }
 
-        // 后续设置的时候需要预处理一下（未完成）
-        Puly.theme = theme
-
+    // 注册图表
+    static registerChart(name: string, calcFun: Function) {
+        if (name in Puly.charts) {
+            throw new Error('This chart is already defined:' + name)
+        }
+        Puly.charts[name] = calcFun
     }
 
     // 设置用户意图
     // 我们根据这个配置进行分析后绘制
     setOption(option: optionType) {
 
-        console.log(Puly.theme)
+        this.option = merge(this.option, option)
+
+        let geometrys = []
+
+        if ('series' in this.option) {
+            for (let series of this.option.series) {
+
+                let result = Puly.charts[series.type]({
+                    data: series.data
+                }, {
+                    color: (index: number) => {
+                        return Puly.theme.colors[index % Puly.theme.colors.length]
+                    }
+                })
+
+                for (let geometry of result.geometry) {
+                    geometrys.push(geometry)
+                }
+
+            }
+        }
+
+        console.log(calc(geometrys, this.option))
 
     }
 

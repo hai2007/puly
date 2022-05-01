@@ -31,12 +31,52 @@
             "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
         });
 
+        // 注册图表
+        Puly.registerChart('mybar', function (params, api) {
+
+            var data = params.data;
+
+            var geometry = [];
+            for (var i = 0; i < data.length; i++) {
+                geometry.push({
+
+                    // 表示这是一个长方体
+                    type: "cuboid",
+
+                    // 长度(可以是负数或0)
+                    length: data[i],
+
+                    // 起点
+                    start: 0,
+
+                    // 颜色
+                    colors: api.color(0)
+
+                });
+            }
+
+            return {
+                geometry: geometry
+            };
+
+        });
+
         // 创建3d对象
         var puly = new Puly(document.getElementById('root'));
 
         // 设置意图
         puly.setOption({
-
+            xAxis: {
+                type: 'category',
+                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                data: [120, 200, 150, 80, 70, 110, 130],
+                type: "mybar"
+            }]
         });
 
     </script>
