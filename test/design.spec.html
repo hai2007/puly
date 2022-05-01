@@ -40,14 +40,30 @@
             for (var i = 0; i < data.length; i++) {
                 geometry.push({
 
+                    // 表示这是一个特殊的用于拼接图表的
+                    // 这个配置项是为了和通用的集合体等区分
+                    // 比如：type='geometry'表示这是一个几何体
+                    type: "item",
+
                     // 表示这是一个长方体
-                    type: "cuboid",
+                    name: "cuboid",
+
+                    /**
+                     * 下面的配置，不同的配置不一样
+                     * 当然，可以定义的以及可配置项都提前确定了
+                    */
 
                     // 长度(可以是负数或0)
                     length: data[i],
 
                     // 起点
                     start: 0,
+
+                    // 底部中心
+                    index: i + 0.5,
+
+                    // 小条目的大小
+                    size: 0.7,
 
                     // 颜色
                     colors: api.color(0)

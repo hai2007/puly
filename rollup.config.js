@@ -35,7 +35,8 @@ export default {
         // ES5+转义
         babel({
             exclude: 'node_modules/**',
-            extensions
+            extensions,
+            babelHelpers: "bundled"
         })
 
     ]
