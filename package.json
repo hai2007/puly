@@ -1,7 +1,7 @@
 {
   "name": "puly",
-  "version": "1.0.0-alpha.3",
-  "description": "基于Image3D.js开发，底层依赖webgl实现，通过配置和简单的方法调用，可以快速实现三维数据可视化和VR效果等。",
+  "version": "1.0.0-alpha.4",
+  "description": "一个简单易用的3D图表，像ECharts一样可以快速上手，配置化生成，并支持个性化自定义扩展。",
   "main": "./dist/puly.min.js",
   "typings": "types/index.d.ts",
   "scripts": {

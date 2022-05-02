@@ -15,6 +15,8 @@ export default interface option {
         data?: Array<string | number>
     },
 
+    data?: any
+
     series?: Array<any>
 
 }

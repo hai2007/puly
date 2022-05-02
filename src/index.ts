@@ -63,7 +63,7 @@ class Puly {
             for (let series of this.option.series) {
 
                 let result = Puly.charts[series.type]({
-                    data: series.data
+                    data: series.data || this.option.data || []
                 }, {
                     color: (index: number) => {
                         return Puly.theme.colors[index % Puly.theme.colors.length]

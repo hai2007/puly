@@ -1,15 +1,15 @@
 /*!
- * puly - 基于Image3D.js开发，底层依赖webgl实现，通过配置和简单的方法调用，可以快速实现三维数据可视化和VR效果等。
+ * puly - 一个简单易用的3D图表，像ECharts一样可以快速上手，配置化生成，并支持个性化自定义扩展。
  * git+https://github.com/hai2007/puly.git
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.0.0-alpha.3
+ * version 1.0.0-alpha.4
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Mon May 02 2022 01:55:29 GMT+0800 (GMT+08:00)
+ * Date:Mon May 02 2022 21:17:58 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1244,7 +1244,56 @@
   }
 
   var calc = (function (geometrys, option) {
-    console.log(geometrys, option);
+    // 坐标值分量最大
+    var MaxValue = {
+      xAxis: 0,
+      yAxis: 0,
+      zAxis: 0
+    }; // 坐标刻度分量最大
+
+    var MaxLabel = {
+      xAxis: 0,
+      yAxis: 0,
+      zAxis: 0
+    };
+
+    var _iterator = _createForOfIteratorHelper(geometrys),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var geometry = _step.value;
+
+        // 条目
+        if (geometry.type == 'item') {
+          // 长方体
+          if (geometry.name == 'cuboid') {
+            var value = Math.abs(geometry.start + geometry.length);
+            var label = Math.max(Math.abs(Math.ceil(geometry.index + geometry.size * 0.5)), Math.abs(Math.floor(geometry.index - geometry.size * 0.5)));
+
+            for (var _i = 0, _arr = ['xAxis', 'yAxis', 'zAxis']; _i < _arr.length; _i++) {
+              var axisName = _arr[_i];
+
+              if (axisName in option) {
+                // 值
+                if (option[axisName].type == 'value') {
+                  MaxValue[axisName] = Math.max(MaxValue[axisName], value);
+                } // 刻度
+                else if (option[axisName].type == 'category') {
+                  MaxLabel[axisName] = Math.max(MaxLabel[axisName], label);
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+
+    console.log(geometrys, option, MaxValue, MaxLabel);
   });
 
   var Puly = /*#__PURE__*/function () {
@@ -1291,7 +1340,7 @@
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var series = _step.value;
               var result = Puly.charts[series.type]({
-                data: series.data
+                data: series.data || this.option.data || []
               }, {
                 color: function color(index) {
                   return Puly.theme.colors[index % Puly.theme.colors.length];
