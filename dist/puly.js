@@ -9,7 +9,7 @@
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue May 03 2022 17:33:56 GMT+0800 (GMT+08:00)
+ * Date:Tue May 03 2022 20:41:40 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1270,14 +1270,14 @@
    *
    * author 你好2007 < https://hai2007.gitee.io/sweethome >
    *
-   * version 1.1.3
+   * version 1.2.0
    *
    * Copyright (c) 2021-present hai2007 走一步，再走一步。
    * Released under the MIT license
    *
-   * Date:Sat Jan 01 2022 00:00:06 GMT+0800 (中国标准时间)
+   * Date:Tue May 03 2022 20:17:38 GMT+0800 (GMT+08:00)
    */
-  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(x,y,z,radius,num){var points=[x,y,z,x+radius,y,z],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),x+radius,z);points.push(point[0],y,point[1]);}return points}function prismVertical(x,y,z,radius,height,num){var points=[x+radius,y,z,x+radius,y+height,z],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),x+radius,z);points.push(point[0],y,point[1],point[0],y+height,point[1]);}return points}function sphereFragment(cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);}points.push(cx,cy-radius,cz);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(x,y,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(x,y+height,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(x,y,z,radius,height,num),length:2*num+2,methods:"StripTriangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
+  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(x,y,z,radius,num){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[x,y,z,beginX,y,beginZ],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);}return points}function prismVertical(x,y,z,radius,height,num){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[beginX,y,beginZ,beginX,y+height,beginZ],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1],point[0],y+height,point[1]);}return points}function sphereFragment(cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);}points.push(cx,cy-radius,cz);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(x,y,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(x,y+height,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(x,y,z,radius,height,num),length:2*num+2,methods:"StripTriangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
   });
 
   var calc = (function (geometrys, option) {
@@ -1647,7 +1647,7 @@
   }
 
   // 顶点着色器
-  var shaderVertex = "\n    attribute vec4 a_position;\n    uniform mat4 u_matrix;\n    void main(){\n        gl_Position=u_matrix * a_position;\n    }\n";
+  var shaderVertex = "\n    attribute vec4 a_position;\n    uniform mat4 u_matrix;\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n    }\n";
 
   // 片段着色器
   var shaderFragment = "\n    precision mediump float;\n    uniform vec4 u_color;\n    void main(){\n        gl_FragColor=u_color;\n    }\n";
@@ -1690,12 +1690,7 @@
         size: 2
       }).rotateBody(0.1, -1, 0, 0, 1, 0, 0); // 监听绘制区域大小改变
 
-      observeResize(el, function () {
-        _this.size = xhtml.size(el);
-
-        _this.canvas.setAttribute('width', "" + _this.size.width);
-
-        _this.canvas.setAttribute('height', "" + _this.size.height);
+      observeResize(el, function () {// todo
       }); // 鼠标键盘交互
       // 每次调整的弧度
 

@@ -54,9 +54,7 @@ class Puly {
         // 监听绘制区域大小改变
         observeResize(el, () => {
 
-            this.size = xhtml.size(el)
-            this.canvas.setAttribute('width', "" + this.size.width)
-            this.canvas.setAttribute('height', "" + this.size.height)
+            // todo
 
         })
 
