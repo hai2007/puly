@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.0.0-beta.1
+ * version 1.0.0-beta.2
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue May 03 2022 20:41:40 GMT+0800 (GMT+08:00)
+ * Date:Tue May 03 2022 21:12:43 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
