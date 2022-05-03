@@ -7,11 +7,23 @@ import observeResize from './observeResize'
 import formatTheme from './formatTheme'
 import merge from './merge'
 import calc from './calc'
+import image3D from 'image3d'
+import viewHandler from '@hai2007/browser/viewHandler.js'
+
+import shaderVertex from './shader-vertex'
+import shaderFragment from './shader-fragment'
 
 class Puly {
 
     private size: sizeType
     private canvas: Element
+
+    private image3d: any
+    private painter: any
+    private buffer: any
+    private camera: any
+
+    private doDraw: Function = null
 
     private static charts: any = {}
     private option: optionType = {}
@@ -27,6 +39,18 @@ class Puly {
         // 追加画布
         this.canvas = xhtml.append(el, "<canvas width='" + this.size.width + "' height='" + this.size.height + "'>非常抱歉，您的浏览器不支持canvas!</canvas>")
 
+        this.image3d = new image3D(this.canvas, {
+            "vertex-shader": shaderVertex,
+            "fragment-shader": shaderFragment,
+            "depth": true
+        })
+
+        this.painter = this.image3d.Painter()
+        this.buffer = this.image3d.Buffer()
+        this.camera = this.image3d.Camera({
+            size: 2
+        }).rotateBody(0.1, -1, 0, 0, 1, 0, 0)
+
         // 监听绘制区域大小改变
         observeResize(el, () => {
 
@@ -34,6 +58,55 @@ class Puly {
             this.canvas.setAttribute('width', "" + this.size.width)
             this.canvas.setAttribute('height', "" + this.size.height)
 
+        })
+
+        // 鼠标键盘交互
+        // 每次调整的弧度
+        let deg = 0.1
+        let rateScale = 1
+
+        viewHandler(data => {
+
+            if (this.doDraw == null) return
+
+            /*
+             * 修改相机
+             */
+
+            // 键盘控制
+            if (data.type == 'lookUp') {
+                this.camera.rotateBody(deg, 1, 0, 0)
+            } else if (data.type == 'lookDown') {
+                this.camera.rotateBody(deg, -1, 0, 0)
+            } else if (data.type == 'lookLeft') {
+                this.camera.rotateBody(deg, 0, 1, 0)
+            } else if (data.type == 'lookRight') {
+                this.camera.rotateBody(deg, 0, -1, 0)
+            }
+
+            // 鼠标拖动或手指控制
+            else if (data.type == 'rotate') {
+                this.camera.rotateBody(deg * data.dist * 0.07, ...data.normal)
+            }
+
+            // 滚轮控制
+            else if (data.type == 'scale') {
+
+                // 设置一个缩放上界
+                if (data.kind == 'enlarge' && rateScale >= 1.28) {
+                    return
+                }
+
+                let baseTimes = 0.899
+
+                let times = data.kind == 'enlarge' ? 2 - baseTimes : baseTimes
+                rateScale *= times
+
+                this.camera.scaleBody(times, times, times, 0, 0, 0)
+            }
+
+            // 重新绘制
+            this.doDraw()
         })
 
     }
@@ -77,7 +150,23 @@ class Puly {
             }
         }
 
-        console.log(calc(geometrys, this.option))
+        let temp = calc(geometrys, this.option)
+        this.doDraw = () => {
+
+            // 传递照相机
+            this.image3d.setUniformMatrix("u_matrix", this.camera.value())
+
+            for (let geometry of temp.geometry) {
+                let data = geometry.data
+
+                this.buffer.write(new Float32Array(data.points)).use('a_position', 3, 3, 0)
+                this.image3d.setUniformFloat("u_color", geometry.color[0], geometry.color[1], geometry.color[2], geometry.color[3])
+                this.painter["draw" + data.methods](0, data.length)
+            }
+
+        }
+
+        this.doDraw()
 
     }
 
