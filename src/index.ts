@@ -48,8 +48,12 @@ class Puly {
         this.painter = this.image3d.Painter()
         this.buffer = this.image3d.Buffer()
         this.camera = this.image3d.Camera({
-            size: 2
+            size: 3
         }).rotateBody(0.1, -1, 0, 0, 1, 0, 0)
+
+        // 设置点光源的颜色和位置
+        this.image3d.setUniformFloat("u_LColor", 0.9, 0.9, 0.9, 1)
+        this.image3d.setUniformFloat("u_LPosition", -5, 5, -5)
 
         // 监听绘制区域大小改变
         observeResize(el, () => {
@@ -157,7 +161,7 @@ class Puly {
             for (let geometry of temp.geometry) {
                 let data = geometry.data
 
-                this.buffer.write(new Float32Array(data.points)).use('a_position', 3, 3, 0)
+                this.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
                 this.image3d.setUniformFloat("u_color", geometry.color[0], geometry.color[1], geometry.color[2], geometry.color[3])
                 this.painter["draw" + data.methods](0, data.length)
             }

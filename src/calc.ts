@@ -7,7 +7,9 @@ export default (geometrys: Array<any>, option: optionType) => {
     let threeGeometry = ThreeGeometry({
 
         // 待定，实际需要动态计算
-        precision: 1
+        precision: 1,
+
+        normal:true
     })
 
     // 坐标值分量最大

@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.0.0-beta.2
+ * version 1.0.0-beta.3
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Tue May 03 2022 21:12:43 GMT+0800 (GMT+08:00)
+ * Date:Wed May 04 2022 01:41:26 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1270,20 +1270,21 @@
    *
    * author 你好2007 < https://hai2007.gitee.io/sweethome >
    *
-   * version 1.2.0
+   * version 1.3.0
    *
    * Copyright (c) 2021-present hai2007 走一步，再走一步。
    * Released under the MIT license
    *
-   * Date:Tue May 03 2022 20:17:38 GMT+0800 (GMT+08:00)
+   * Date:Wed May 04 2022 01:36:13 GMT+0800 (GMT+08:00)
    */
-  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(x,y,z,radius,num){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[x,y,z,beginX,y,beginZ],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);}return points}function prismVertical(x,y,z,radius,height,num){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[beginX,y,beginZ,beginX,y+height,beginZ],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1],point[0],y+height,point[1]);}return points}function sphereFragment(cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);}points.push(cx,cy-radius,cz);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(x,y,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(x,y+height,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(x,y,z,radius,height,num),length:2*num+2,methods:"StripTriangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
+  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(normal,x,y,z,radius,num,d){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[x,y,z],deg=Math.PI*2/num;if(normal)points.push(0,d,0);points.push(beginX,y,beginZ);if(normal)points.push(0,d,0);for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);if(normal)points.push(0,d,0);}return points}function prismVertical(normal,x,y,z,radius,height,num){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[beginX,y,beginZ],deg=Math.PI*2/num;if(normal){points.push(beginX-x,0,beginZ-z);}points.push(beginX,y+height,beginZ);if(normal){points.push(beginX-x,0,beginZ-z);}for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);if(normal){points.push(point[0]-x,0,point[1]-z);}points.push(point[0],y+height,point[1]);if(normal){points.push(point[0]-x,0,point[1]-z);}}return points}function sphereFragment(normal,cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;if(normal)points.push(0,radius,0);for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);if(normal)points.push(point1[0]-cx,point[1]-cy,point1[1]-cz);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);if(normal)points.push(point2[0]-cx,point2[1]-cy,point2[1]-cz);}points.push(cx,cy-radius,cz);if(normal)points.push(0,-radius,0);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(options.normal,x,y,z,radius,num,-1),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(options.normal,x,y+height,z,radius,num,1),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(options.normal,x,y,z,radius,height,num),length:2*num+2,methods:"StripTriangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(options.normal,cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
   });
 
   var calc = (function (geometrys, option) {
     var threeGeometry = threeGeometry_min({
       // 待定，实际需要动态计算
-      precision: 1
+      precision: 1,
+      normal: true
     }); // 坐标值分量最大
 
     var maxValue = 0; // 坐标刻度分量最大
@@ -1647,10 +1648,10 @@
   }
 
   // 顶点着色器
-  var shaderVertex = "\n    attribute vec4 a_position;\n    uniform mat4 u_matrix;\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n    }\n";
+  var shaderVertex = "\n\n    attribute vec4 a_position; // \u9876\u70B9\u5750\u6807\n    uniform mat4 u_matrix;     // \u53D8\u6362\u77E9\u9635\n    uniform vec3 u_LPosition;  // \u5149\u7684\u4F4D\u7F6E\n    attribute vec3 a_normal;\n\n    varying vec3 v_LDirection;\n    varying vec3 v_normal;\n\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n        // \u70B9\u5149\u6E90\u65B9\u5411\n        // \u9876\u70B9\u7684\u4F4D\u7F6E\u5E94\u8BE5\u4F7F\u7528\u8BA1\u7B97\u8FC7\u7684\n        v_LDirection = vec3(gl_Position) - u_LPosition;\n\n        v_normal = vec3(u_matrix * vec4(a_normal, 1));\n\n    }\n";
 
   // 片段着色器
-  var shaderFragment = "\n    precision mediump float;\n    uniform vec4 u_color;\n    void main(){\n        gl_FragColor=u_color;\n    }\n";
+  var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(dot(LDirection, normal), 0.2);\n\n        gl_FragColor = u_color * u_LColor * dotValue;\n    }\n";
 
   var Puly = /*#__PURE__*/function () {
     // 主题
@@ -1687,8 +1688,11 @@
       this.painter = this.image3d.Painter();
       this.buffer = this.image3d.Buffer();
       this.camera = this.image3d.Camera({
-        size: 2
-      }).rotateBody(0.1, -1, 0, 0, 1, 0, 0); // 监听绘制区域大小改变
+        size: 3
+      }).rotateBody(0.1, -1, 0, 0, 1, 0, 0); // 设置点光源的颜色和位置
+
+      this.image3d.setUniformFloat("u_LColor", 0.9, 0.9, 0.9, 1);
+      this.image3d.setUniformFloat("u_LPosition", -5, 5, -5); // 监听绘制区域大小改变
 
       observeResize(el, function () {// todo
       }); // 鼠标键盘交互
@@ -1796,7 +1800,7 @@
               var _geometry = _step3.value;
               var data = _geometry.data;
 
-              _this2.buffer.write(new Float32Array(data.points)).use('a_position', 3, 3, 0);
+              _this2.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
 
               _this2.image3d.setUniformFloat("u_color", _geometry.color[0], _geometry.color[1], _geometry.color[2], _geometry.color[3]);
 
