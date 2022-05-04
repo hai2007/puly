@@ -52,7 +52,7 @@ var xhtml =__etcpack__scope_args__.default;
             openExample(pagename) {
                 lazyLoad[pagename]().then(data => {
                     localStorage.setItem('hai2007-sweethome-editor-html-code', data.default);
-                    this.$loadPage("/sweethome/#/editor");
+                    this.$loadPage("/SweetHome/#/editor");
                 })
             },
             doScroll(fixedName) {
