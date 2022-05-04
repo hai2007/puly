@@ -1,4 +1,4 @@
-<template>
+<template class="example-view">
     <div class='nav'>
         <h2 @click='doScroll("bar")' class='bar'>
             柱状图
@@ -137,14 +137,21 @@
     </div>
 </template>
 <script>
-    import fixedScroll from '../../Service/fixedScroll.js';
+
+    import fixedScroll from '../../service/fixedScroll.js';
+    import lazyLoad from '../../../examples/lazy-load';
+    import xhtml from '@hai2007/browser/xhtml';
+
     export default {
         mounted() {
             fixedScroll(this.$urlFormat(window.location.href).params.fixed || "bar", 100);
         },
         methods: {
             openExample(pagename) {
-
+                lazyLoad[pagename]().then(data => {
+                    localStorage.setItem('hai2007-sweethome-editor-html-code', data.default);
+                    this.$loadPage("/sweethome/#/editor");
+                })
             },
             doScroll(fixedName) {
                 window.location.href = "#/main/example?fixed=" + fixedName;
@@ -154,8 +161,9 @@
     };
 </script>
 <style>
-    [quickpaper] {
+    [quickpaper].example-view {
         white-space: nowrap;
+        overflow: hidden;
 
         &>div {
             display: inline-block;

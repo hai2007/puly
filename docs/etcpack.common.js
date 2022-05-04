@@ -13,8 +13,10 @@ module.exports = {
     loader: [{
         test: /\.js$/,
         handler: ['@etcpack/babel-loader']
-    },
-    {
+    }, {
+        test: /\.html$/,
+        handler: ['@etcpack/plain-loader']
+    }, {
         test: /\.(css|scss)$/,
         handler: ['@etcpack/quickpaper-style-loader', '@etcpack/scss-loader']
     }, {

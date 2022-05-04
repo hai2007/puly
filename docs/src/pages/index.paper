@@ -79,6 +79,7 @@
 
             &>ul {
                 display: inline-block;
+                vertical-align: top;
 
                 &>li {
                     display: inline-block;
@@ -101,7 +102,10 @@
             }
 
             &>div {
-                float: right;
+                position: absolute;
+                right: 0;
+                top: 0;
+                background-color: #2f3241;
 
                 &>a {
                     display: inline-block;
