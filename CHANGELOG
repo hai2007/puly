@@ -1,0 +1,8 @@
+v1.0.0:
+    date:2022-05-06
+    changes:
+      - 初始化版本
+v1.2.0:
+    date:2022-05-06
+    changes:
+      - 新增几何geometry自定义接口

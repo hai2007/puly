@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>自定义 / 几何体</title>
+    <script src="https://cdn.jsdelivr.net/npm/puly@1"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+        Puly.registerChart('geometry', function (params, api) {
+
+            return {
+                geometry: [{
+                    type: "geometry",
+                    name: "sphere",
+                    params: [0, 0, 0, 0.5],
+                    color: api.color(0)
+                }, {
+                    type: "geometry",
+                    name: "prism",
+                    params: [0.75, 0, 0, 0.2, 0.3, 7],
+                    color: api.color(1)
+                }, {
+                    type: "geometry",
+                    name: "cylinder",
+                    params: [-0.75, 0, 0, 0.2, 0.3],
+                    color:api.color(2)
+                }]
+
+            }
+
+        });
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+            series: [{
+                type: "geometry"
+            }]
+        });
+
+    </script>
+
+</body>
+
+</html>

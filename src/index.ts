@@ -9,6 +9,7 @@ import merge from './merge'
 import calc from './calc'
 import image3D from 'image3d'
 import viewHandler from '@hai2007/browser/viewHandler.js'
+import { isBoolean } from '@hai2007/tool/type'
 
 import shaderVertex from './shader-vertex'
 import shaderFragment from './shader-fragment'
@@ -48,12 +49,16 @@ class Puly {
         this.painter = this.image3d.Painter()
         this.buffer = this.image3d.Buffer()
         this.camera = this.image3d.Camera({
-            size: 3
-        }).rotateBody(0.1, -1, 0, 0, 1, 0, 0)
+            size: 4,
+
+            // 默认的时候，Z轴承的方向是朝里的，这里进行了校对
+            // https://hai2007.gitee.io/image3d/index.html#/api?fixed=camera-set
+            proof: true
+        }).rotateBody(-0.5, 1, 0, 0).rotateBody(0.2, 0, 0, 1).rotateBody(0.5, -1, 1, -1)
 
         // 设置点光源的颜色和位置
-        this.image3d.setUniformFloat("u_LColor", 0.9, 0.9, 0.9, 1)
-        this.image3d.setUniformFloat("u_LPosition", -5, 5, -5)
+        this.image3d.setUniformFloat("u_LColor", 1, 1, 1, 1)
+        this.image3d.setUniformFloat("u_LPosition", -5, 5, 5)
 
         // 监听绘制区域大小改变
         observeResize(el, () => {
@@ -95,7 +100,7 @@ class Puly {
             else if (data.type == 'scale') {
 
                 // 设置一个缩放上界
-                if (data.kind == 'enlarge' && rateScale >= 1.28) {
+                if (data.kind == 'enlarge' && rateScale >= 2) {
                     return
                 }
 
@@ -137,16 +142,23 @@ class Puly {
         if ('series' in this.option) {
             for (let series of this.option.series) {
 
-                let result = Puly.charts[series.type]({
-                    data: series.data || this.option.data || []
-                }, {
-                    color: (index: number) => {
-                        return Puly.theme.colors[index % Puly.theme.colors.length]
-                    }
-                })
+                try {
 
-                for (let geometry of result.geometry) {
-                    geometrys.push(geometry)
+                    let result = Puly.charts[series.type]({
+                        data: series.data || this.option.data || [],
+                        itemStyle: series.itemStyle || {}
+                    }, {
+                        color: (index: number) => {
+                            return Puly.theme.colors[index % Puly.theme.colors.length]
+                        }
+                    })
+
+                    for (let geometry of result.geometry) {
+                        geometrys.push(geometry)
+                    }
+
+                } catch (e) {
+                    console.warn("[puly warn]Chart '" + series.type + "' not defined")
                 }
 
             }
@@ -166,6 +178,59 @@ class Puly {
                 this.painter["draw" + data.methods](0, data.length)
             }
 
+            if (!('xAxis' in this.option) || (isBoolean(this.option.xAxis.show) && this.option.xAxis.show)) {
+
+                // 绘制x坐标轴
+                this.buffer.write(new Float32Array([
+                    -1.3, 0, 0, 0, 0, 1, 1.3, 0, 0, 0, 0, 1,
+                    1.25, 0.02, 0.02, 0, 0, 1,
+                    1.25, -0.02, 0.02, 0, 0, 1,
+                    1.25, -0.02, -0.02, 0, 0, 1,
+                    1.25, 0.02, -0.02, 0, 0, 1,
+                    1.25, 0.02, 0.02, 0, 0, 1,
+                ])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
+
+                this.image3d.setUniformFloat("u_color", 1, 0, 0, 1)
+
+                this.painter.drawLine(0, 2).drawFanTriangle(1, 6)
+
+            }
+
+            if (!('yAxis' in this.option) || (isBoolean(this.option.yAxis.show) && this.option.yAxis.show)) {
+
+                // 绘制y坐标轴
+                this.buffer.write(new Float32Array([
+                    0, -1.3, 0, 0, 0, 1, 0, 1.3, 0, 0, 0, 1,
+                    0.02, 1.25, 0.02, 0, 0, 1,
+                    -0.02, 1.25, 0.02, 0, 0, 1,
+                    -0.02, 1.25, -0.02, 0, 0, 1,
+                    0.02, 1.25, -0.02, 0, 0, 1,
+                    0.02, 1.25, 0.02, 0, 0, 1,
+                ])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
+
+                this.image3d.setUniformFloat("u_color", 0, 1, 0, 1)
+
+                this.painter.drawLine(0, 2).drawFanTriangle(1, 6)
+
+            }
+
+            if (!('zAxis' in this.option) || (isBoolean(this.option.zAxis.show) && this.option.zAxis.show)) {
+
+                // 绘制z坐标轴
+                this.buffer.write(new Float32Array([
+                    0, 0, -1.3, 0, 0, 1, 0, 0, 1.3, 0, 0, 1,
+                    0.02, 0.02, 1.25, 0, 0, 1,
+                    -0.02, 0.02, 1.25, 0, 0, 1,
+                    -0.02, -0.02, 1.25, 0, 0, 1,
+                    0.02, -0.02, 1.25, 0, 0, 1,
+                    0.02, 0.02, 1.25, 0, 0, 1,
+                ])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
+
+                this.image3d.setUniformFloat("u_color", 0, 0, 1, 1)
+
+                this.painter.drawLine(0, 2).drawFanTriangle(1, 6)
+
+            }
         }
 
         this.doDraw()
@@ -173,6 +238,17 @@ class Puly {
     }
 
 }
+
+// 挂载内置图表
+import charts from './charts/index'
+for (let key in charts) {
+    Puly.registerChart(key, charts[key])
+}
+
+// 设置好主题色
+Puly.registerTheme({
+    "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+});
 
 // 对外暴露调用接口
 

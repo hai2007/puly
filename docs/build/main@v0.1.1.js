@@ -75,10 +75,12 @@ __etcpack__scope_args__=window.__etcpack__getBundle('15');
 __etcpack__scope_args__=window.__etcpack__getBundle('16');
 
 __etcpack__scope_args__=window.__etcpack__getBundle('17');
+
+__etcpack__scope_args__=window.__etcpack__getBundle('18');
 var qCode =__etcpack__scope_args__.default;
 
 QuickPaper.directive('qCode', qCode);
-__etcpack__scope_args__=window.__etcpack__getBundle('20');
+__etcpack__scope_args__=window.__etcpack__getBundle('21');
 var fixedScroll =__etcpack__scope_args__.default;
 
 QuickPaper.prototype.$fixedScroll = fixedScroll; // 获取url信息
@@ -114,7 +116,7 @@ QuickPaper.prototype.$loadPage = function (url) {
   aDom.click();
 };
 
-__etcpack__scope_args__=window.__etcpack__getBundle('22');
+__etcpack__scope_args__=window.__etcpack__getBundle('23');
 var App =__etcpack__scope_args__.default;
  //根对象
 
@@ -1001,7 +1003,21 @@ window.__etcpack__bundleSrc__['16']=function(){
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');
 var head = document.head || document.getElementsByTagName('head')[0];
-styleElement.innerHTML = "\n body{\n\nbackground-color: #2f3241;\n\n}\n";
+styleElement.innerHTML = "\n html{\n\nfont-size: 100px;\n\n}\n\n body{\n\nfont-size: .16rem;\n\nbackground-color: #2f3241;\n\n}\n\n div.doc-view>header{\n\nfont-size: 26px;\n\npadding: 30px 0;\n\nfont-weight: 800;\n\n}\n\n div.doc-view>h2{\n\nfont-size: 18px;\n\nborder-left: 2px solid blue;\n\npadding: 5px;\n\nmargin-top: 40px;\n\nmargin-bottom: 20px;\n\n}\n\n div.doc-view>h4{\n\ncolor: red;\n\n}\n\n div.doc-view>h5{\n\npadding-left: 10px;\n\n}\n\n div.doc-view .warn{\n\ncolor: #030303;\n\nfont-weight: 800;\n\npadding: 0 2px;\n\nfont-size: 12px;\n\n}\n\n .link{\n\nmargin: 0 5px;\n\n}\n\n/* // 导航菜单页面 */\n\n .nav-view{\n\nwhite-space: nowrap;\n\n}\n\n .nav-view>div{\n\ndisplay: inline-block;\n\nvertical-align: top;\n\nwhite-space: normal;\n\nheight: calc(100vh - 60px);\n\noverflow: auto;\n\n}\n\n .nav-view>div.menu{\n\nwidth: 240px;\n\npadding: 20px 0;\n\n}\n\n .nav-view>div.menu [active='no']>li>ul{\n\ndisplay: none;\n\n}\n\n .nav-view>div.menu [active='yes']>li>h3{\n\nborder-left: 3px solid #a0db67;\n\n}\n\n .nav-view>div.menu [active='yes']>li>ul{\n\ndisplay: block;\n\n}\n\n/* // 标题 */\n\n .nav-view>div.menu h3, .nav-view>div.menu h4, .nav-view>div.menu h5, .nav-view>div.menu h6{\n\npadding-left: 7px;\n\nline-height: 30px;\n\n}\n\n/* // 一级标题 */\n\n .nav-view>div.menu h3{\n\nfont-size: 16px;\n\ncursor: pointer;\n\nmargin-top: 15px;\n\n}\n\n/* // 二级和三级标题 */\n\n .nav-view>div.menu h4, .nav-view>div.menu h5, .nav-view>div.menu h6{\n\nfont-size: 14px;\n\ncursor: pointer;\n\nfont-weight: 400;\n\n}\n\n .nav-view>div.menu h4:hover, .nav-view>div.menu h5:hover, .nav-view>div.menu h6:hover{\n\ntext-decoration: underline;\n\n}\n\n .nav-view>div.menu>ul>li>ul{\n\nmargin-left: 20px;\n\n}\n\n .nav-view>div.menu>ul ul{\n\nmargin-left: 10px;\n\n}\n\n .nav-view>div.view{\n\nwidth: calc(100vw - 240px);\n\n}\n\n .nav-view>div.view>div{\n\nwidth: 700px;\n\nmargin: auto;\n\n}\n";
+styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
+  
+    return __etcpack__scope_bundle__;
+}
+
+/*************************** [bundle] ****************************/
+// Original file:./node_modules/@hai2007/style/doc-view.css
+/*****************************************************************/
+window.__etcpack__bundleSrc__['17']=function(){
+    var __etcpack__scope_bundle__={};
+    var __etcpack__scope_args__;
+    var styleElement = document.createElement('style');
+var head = document.head || document.getElementsByTagName('head')[0];
+styleElement.innerHTML = ".doc-view {\n    color: #000000;\n    padding: 15px;\n}\n\n/* 文章标题 */\n.doc-view>h2 {\n    font-size: 30px;\n    padding: 30px 0;\n}\n\n/* 一级标题 */\n.doc-view>h3 {\n    font-size: 15px;\n    line-height: 2em;\n    padding: 20px 0;\n}\n\n.doc-view>h3::before {\n    content: \"#\";\n    color: #711e32;\n}\n\n/* 二级标题 */\n.doc-view>h4 {\n    font-size: 14px;\n    line-height: 2em;\n    padding: 15px 0;\n}\n\n/* 段落 */\n.doc-view>p {\n    line-height: 1.6em;\n    text-indent: 2em;\n    color: #3c3939;\n    font-weight: 400;\n    font-size: 14px;\n    margin: 10px 0;\n}\n\n/* 表格 */\n.doc-view>table {\n    width: 100%;\n    line-height: 30px;\n}\n\n.doc-view>table>tbody>tr>* {\n    border-width: 0 1px 1px 0;\n    border-style: solid;\n    border-color: #c1bcbc;\n}\n\n.doc-view>table>*>tr>td {\n    padding-left: 1em;\n}\n\n.doc-view>table>tbody>tr>*:first-child {\n    border-width: 0 1px 1px 1px;\n}\n\n.doc-view>table>tbody>tr:nth-child(2n) {\n    background-color: #F5F5F5;\n}\n\n.doc-view>table>tbody>tr:nth-child(2n+1) {\n    background-color: #fff;\n}\n\n.doc-view>table>thead>tr {\n    background-color: #c1bcbc;\n    border: 1px solid #c1bcbc;\n    color: #fff;\n}\n\n\n/* 列表 */\n\n.doc-view ul,\n.doc-view ol {\n    font-size: 13px;\n    line-height: 2.4em;\n}\n\n.doc-view ul {\n    margin-left: 2.5em;\n}\n\n.doc-view ol {\n    margin-left: 2.5em;\n}\n\n.doc-view ul>li {\n    list-style-type: circle;\n}\n\n.doc-view ol>li {\n    list-style-type: decimal;\n}\n\n/* 重要内容 */\n\n.doc-view .important {\n    color: rgb(255, 0, 0);\n    font-weight: 800;\n    padding: 0 10px;\n}\n\n/* 可点击链接 */\n\n.doc-view .link {\n    color: rgb(59, 59, 180);\n    cursor: pointer;\n    text-decoration: underline;\n    padding: 0 10px;\n}\n\n.doc-view .link:hover {\n    color: rgb(0, 0, 255);\n    font-weight: 800;\n}\n\n/* 过时标记 */\n\n.doc-view .outdated {\n    text-decoration: line-through;\n    text-decoration-color: red;\n}\n";
 styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
   
     return __etcpack__scope_bundle__;
@@ -1010,15 +1026,15 @@ styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
 /*************************** [bundle] ****************************/
 // Original file:./src/directives/q-code.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['17']=function(){
+window.__etcpack__bundleSrc__['18']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-__etcpack__scope_args__=window.__etcpack__getBundle('18');
+__etcpack__scope_args__=window.__etcpack__getBundle('19');
 var xhtml =__etcpack__scope_args__.default;
 
-__etcpack__scope_args__=window.__etcpack__getBundle('19');
+__etcpack__scope_args__=window.__etcpack__getBundle('20');
 var OpenWebEditor =__etcpack__scope_args__.default;
 
 __etcpack__scope_bundle__.default= {
@@ -1100,7 +1116,7 @@ __etcpack__scope_bundle__.default= {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/browser/xhtml.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['18']=function(){
+window.__etcpack__bundleSrc__['19']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     /*!
@@ -1415,7 +1431,7 @@ __etcpack__scope_bundle__.default= {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/open-web-editor/dist/open-web-editor.min.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['19']=function(){
+window.__etcpack__bundleSrc__['20']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     
@@ -1451,10 +1467,10 @@ window.__etcpack__bundleSrc__['19']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./src/service/fixedScroll.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['20']=function(){
+window.__etcpack__bundleSrc__['21']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('21');
+    __etcpack__scope_args__=window.__etcpack__getBundle('22');
 var animation =__etcpack__scope_args__.default;
 
 __etcpack__scope_bundle__.default= function (fixed, overValue) {
@@ -1486,7 +1502,7 @@ __etcpack__scope_bundle__.default= function (fixed, overValue) {
 /*************************** [bundle] ****************************/
 // Original file:./node_modules/@hai2007/tool/animation.js
 /*****************************************************************/
-window.__etcpack__bundleSrc__['21']=function(){
+window.__etcpack__bundleSrc__['22']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     //当前正在运动的动画的tick函数堆栈
@@ -1614,18 +1630,18 @@ __etcpack__scope_bundle__.default= function (doback, duration, callback) {
 /*************************** [bundle] ****************************/
 // Original file:./src/App.paper
 /*****************************************************************/
-window.__etcpack__bundleSrc__['22']=function(){
+window.__etcpack__bundleSrc__['23']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     
 
     // 导入js
-__etcpack__scope_args__=window.__etcpack__getBundle('23');
+__etcpack__scope_args__=window.__etcpack__getBundle('24');
 var script =__etcpack__scope_args__.default;
 
 
     // 导入css
-__etcpack__scope_args__=window.__etcpack__getBundle('25');
+__etcpack__scope_args__=window.__etcpack__getBundle('26');
 
 
     script.render=function(createElement){
@@ -1643,11 +1659,11 @@ __etcpack__scope_args__=window.__etcpack__getBundle('25');
 /*************************** [bundle] ****************************/
 // Original file:./src/App.paper?QuickPaper&type=script&lang=js&hash=347ecaca
 /*****************************************************************/
-window.__etcpack__bundleSrc__['23']=function(){
+window.__etcpack__bundleSrc__['24']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     let pages = {
-        main: () => window.__etcpack__getLazyBundle('./build/main@v0.1.0-bundle1.js','24')
+        main: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle1.js','25')
     };
 
     __etcpack__scope_bundle__.default= {
@@ -1676,7 +1692,7 @@ window.__etcpack__bundleSrc__['23']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./src/App.paper?QuickPaper&type=style&lang=css&hash=347ecaca
 /*****************************************************************/
-window.__etcpack__bundleSrc__['25']=function(){
+window.__etcpack__bundleSrc__['26']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');

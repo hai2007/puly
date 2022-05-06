@@ -1,0 +1,110 @@
+<template class='doc-view'>
+    <header id='fixed-top'>
+        配置项
+    </header>
+    <h2 id='fixed-data'>
+        data
+    </h2>
+    <p>
+        表示绘图需要使用得数据。
+    </p>
+    <h2 id='fixed-xAxis'>
+        xAxis
+    </h2>
+    <p>
+        x刻度尺。
+    </p>
+    <h3 id='fixed-xAxis.show'>
+        show
+    </h3>
+    <p>
+        设置当前刻度尺是否显示，默认显示。
+    </p>
+    <h2 id='fixed-yAxis'>
+        yAxis
+    </h2>
+    <p>
+        y刻度尺。
+    </p>
+    <h3 id='fixed-yAxis.show'>
+        show
+    </h3>
+    <p>
+        设置当前刻度尺是否显示，默认显示。
+    </p>
+    <h2 id='fixed-zAxis'>
+        zAxis
+    </h2>
+    <p>
+        z刻度尺。
+    </p>
+    <h3 id='fixed-zAxis.show'>
+        show
+    </h3>
+    <p>
+        设置当前刻度尺是否显示，默认显示。
+    </p>
+    <h2 id='fixed-series'>
+        series
+    </h2>
+    <p>
+        图表。
+    </p>
+    <h3 id='fixed-series.bar'>
+        type=bar
+    </h3>
+    <p>
+        柱状图。
+    </p>
+    <h4 id='fixed-series.bar.data'>
+        data
+    </h4>
+    <p>
+        数据，和<span class="warn">option.data</span>一样，可以不设置，如果设置了，优先级更高。
+    </p>
+    <h4 id='fixed-series.bar.itemStyle'>
+        itemStyle
+    </h4>
+    <p>
+        条目的样式。
+    </p>
+    <h5 id='fixed-series.bar.itemStyle.colors'>
+        colors
+    </h5>
+    <p>
+        表示是否使用尽力多的颜色来绘制条目，boolean类型，默认false。
+    </p>
+    <h5 id='fixed-series.bar.itemStyle.align'>
+        align
+    </h5>
+    <p>
+        条目绘制的对齐方式，默认"bottom"底部对齐，还可以设置居中对齐"middle"。
+    </p>
+    <h3 id='fixed-series.line'>
+        type=line
+    </h3>
+    <p>
+        折线图。
+    </p>
+    <h4 id='fixed-series.line.data'>
+        data
+    </h4>
+    <p>
+        数据，和<span class="warn">option.data</span>一样，可以不设置，如果设置了，优先级更高。
+    </p>
+    <h3 id='fixed-series.candlestick'>
+        type=candlestick
+    </h3>
+    <p>
+        K线图。
+    </p>
+    <h4 id='fixed-series.candlestick.data'>
+        data
+    </h4>
+    <p>
+        数据，和<span class="warn">option.data</span>一样，可以不设置，如果设置了，优先级更高。
+    </p>
+</template>
+<style>
+
+</style>

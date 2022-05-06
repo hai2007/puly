@@ -18,7 +18,7 @@ export default `
         vec3 normal = normalize(v_normal);
 
         // 计算序列化后的光方向和法线方向的点乘
-        float dotValue = max(dot(LDirection, normal), 0.2);
+        float dotValue = max(abs(dot(LDirection, normal)), 0.4);
 
         gl_FragColor = u_color * u_LColor * dotValue;
     }

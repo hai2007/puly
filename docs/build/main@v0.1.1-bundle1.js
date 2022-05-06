@@ -2,23 +2,23 @@
 /*************************** [bundle] ****************************/
 // Original file:./src/pages/index.paper
 /*****************************************************************/
-window.__etcpack__bundleSrc__['24']=function(){
+window.__etcpack__bundleSrc__['25']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     
 
     // 导入js
-__etcpack__scope_args__=window.__etcpack__getBundle('26');
+__etcpack__scope_args__=window.__etcpack__getBundle('27');
 var script =__etcpack__scope_args__.default;
 
 
     // 导入css
-__etcpack__scope_args__=window.__etcpack__getBundle('33');
+__etcpack__scope_args__=window.__etcpack__getBundle('34');
 
 
     script.render=function(createElement){
 
-        return createElement('div',{"quickpaper":"","data-quickpaper-48e12a3e":""},[createElement('header',{"data-quickpaper-48e12a3e":""},[createElement('h2',{"data-quickpaper-48e12a3e":""},["Puly"]),createElement('ul',{"data-quickpaper-48e12a3e":""},[createElement('li',{":active":"flag=='home'?'yes':'no'","@click":"loadpage('home')","data-quickpaper-48e12a3e":""},["首页"]),createElement('li',{":active":"flag=='api'?'yes':'no'","@click":"loadpage('api')","data-quickpaper-48e12a3e":""},["文档"]),createElement('li',{":active":"flag=='example'?'yes':'no'","@click":"loadpage('example')","data-quickpaper-48e12a3e":""},["例子"])]),createElement('div',{"data-quickpaper-48e12a3e":""},[createElement('a',{"class":"normal","href":"https://github.com/clunch-contrib","target":"_blank","data-quickpaper-48e12a3e":""},["开源社区"]),createElement('ui-search',{"data-quickpaper-48e12a3e":""},[]),createElement('a',{"class":"github","href":"https://github.com/hai2007/puly","target":"_blank","data-quickpaper-48e12a3e":""},["github"])])]),createElement('component',{":is":"page","data-quickpaper-48e12a3e":""},[])])
+        return createElement('div',{"quickpaper":"","data-quickpaper-48e12a3e":""},[createElement('header',{"data-quickpaper-48e12a3e":""},[createElement('h2',{"data-quickpaper-48e12a3e":""},["Puly"]),createElement('ul',{"data-quickpaper-48e12a3e":""},[createElement('li',{":active":"flag=='home'?'yes':'no'","@click":"loadpage('home')","data-quickpaper-48e12a3e":""},["首页"]),createElement('li',{":active":"flag=='api'?'yes':'no'","@click":"loadpage('api')","data-quickpaper-48e12a3e":""},["文档"]),createElement('li',{":active":"flag=='example'?'yes':'no'","@click":"loadpage('example')","data-quickpaper-48e12a3e":""},["示例"])]),createElement('div',{"data-quickpaper-48e12a3e":""},[createElement('a',{"class":"normal","href":"https://github.com/clunch-contrib","target":"_blank","data-quickpaper-48e12a3e":""},["开源社区"]),createElement('ui-search',{"data-quickpaper-48e12a3e":""},[]),createElement('a',{"class":"github","href":"https://github.com/hai2007/puly","target":"_blank","data-quickpaper-48e12a3e":""},["github"])])]),createElement('component',{":is":"page","data-quickpaper-48e12a3e":""},[])])
 
     };
 
@@ -31,18 +31,18 @@ __etcpack__scope_args__=window.__etcpack__getBundle('33');
 /*************************** [bundle] ****************************/
 // Original file:./src/pages/index.paper?QuickPaper&type=script&lang=js&hash=48e12a3e
 /*****************************************************************/
-window.__etcpack__bundleSrc__['26']=function(){
+window.__etcpack__bundleSrc__['27']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
-    __etcpack__scope_args__=window.__etcpack__getBundle('27');
+    __etcpack__scope_args__=window.__etcpack__getBundle('28');
 var uiSearch =__etcpack__scope_args__.default;
 
 
 
     let pages = {
-        home: () => window.__etcpack__getLazyBundle('./build/main@v0.1.0-bundle2.js','30'),
-        api: () => window.__etcpack__getLazyBundle('./build/main@v0.1.0-bundle3.js','31'),
-        example: () => window.__etcpack__getLazyBundle('./build/main@v0.1.0-bundle4.js','32')
+        home: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle2.js','31'),
+        api: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle3.js','32'),
+        example: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle4.js','33')
     };
 
     __etcpack__scope_bundle__.default= {
@@ -77,18 +77,18 @@ var uiSearch =__etcpack__scope_args__.default;
 /*************************** [bundle] ****************************/
 // Original file:./src/components/ui-search.paper
 /*****************************************************************/
-window.__etcpack__bundleSrc__['27']=function(){
+window.__etcpack__bundleSrc__['28']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     
 
     // 导入js
-__etcpack__scope_args__=window.__etcpack__getBundle('28');
+__etcpack__scope_args__=window.__etcpack__getBundle('29');
 var script =__etcpack__scope_args__.default;
 
 
     // 导入css
-__etcpack__scope_args__=window.__etcpack__getBundle('29');
+__etcpack__scope_args__=window.__etcpack__getBundle('30');
 
 
     script.render=function(createElement){
@@ -106,7 +106,7 @@ __etcpack__scope_args__=window.__etcpack__getBundle('29');
 /*************************** [bundle] ****************************/
 // Original file:./src/components/ui-search.paper?QuickPaper&type=script&lang=js&hash=04c380ac
 /*****************************************************************/
-window.__etcpack__bundleSrc__['28']=function(){
+window.__etcpack__bundleSrc__['29']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     __etcpack__scope_bundle__.default= {
@@ -131,7 +131,7 @@ window.__etcpack__bundleSrc__['28']=function(){
 /*************************** [bundle] ****************************/
 // Original file:./src/components/ui-search.paper?QuickPaper&type=style&lang=css&hash=04c380ac
 /*****************************************************************/
-window.__etcpack__bundleSrc__['29']=function(){
+window.__etcpack__bundleSrc__['30']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');
@@ -145,7 +145,7 @@ styleElement.setAttribute('type', 'text/css');head.appendChild(styleElement);
 /*************************** [bundle] ****************************/
 // Original file:./src/pages/index.paper?QuickPaper&type=style&lang=css&hash=48e12a3e
 /*****************************************************************/
-window.__etcpack__bundleSrc__['33']=function(){
+window.__etcpack__bundleSrc__['34']=function(){
     var __etcpack__scope_bundle__={};
     var __etcpack__scope_args__;
     var styleElement = document.createElement('style');

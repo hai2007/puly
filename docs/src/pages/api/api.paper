@@ -1,0 +1,191 @@
+<template class='doc-view'>
+    <header id='fixed-top'>
+        接口
+    </header>
+    <h2 id="fixed-registerTheme">
+        设置主题
+    </h2>
+    <p>
+        目前主题只包含颜色，后续会根据实际情况慢慢丰富：
+    </p>
+    <pre q-code>
+// 设置好主题色
+Puly.registerTheme({
+    "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+});
+    </pre>
+    <p>
+        上面的颜色个数可以是任意多个，值可以是任意合法的css颜色值。
+    </p>
+    <h2 id="fixed-registerChart">
+        自定义图表
+    </h2>
+    <p>
+        除了内置的图表，我们还支持个性化的自定义图表：
+    </p>
+    <pre q-code>
+// 注册图表
+Puly.registerChart('图表名称', function (params, api) {
+
+    return {
+        geometry: []
+    };
+
+});
+    </pre>
+    <h3 id="fixed-registerChart.params">
+        params
+    </h3>
+    <p>
+        包含用户设置的data、itemStyle等配置信息（经过内部一定的处理），简单的理解就是：包含了用户的意图。
+    </p>
+    <h3 id="fixed-registerChart.api">
+        api
+    </h3>
+    <p>
+        这是一个辅助对象，里面包含若干的方法可以供使用。
+    </p>
+    <h4 id="fixed-registerChart.api.color">
+        color
+    </h4>
+    <pre q-code>
+api.color(index)
+    </pre>
+    <p>
+        从维护的主题中获取颜色，其中index表示颜色序号，需要是一个不小于0的整数。
+    </p>
+    <h3 id="fixed-registerChart.return">
+        返回值
+    </h3>
+    <p>
+        返回一个json，里面有一个字段<span class="warn">geometry</span>表示绘制的具体几何体坐标等信息，是一个数组，每个条目是一个json数据。
+    </p>
+    <p>
+        有如下类型可选：
+    </p>
+    <h4 class="item-cls" id="fixed-registerChart.return.native">
+        原生
+    </h4>
+    <p>
+        也就是使用image3D的
+        <a href="https://hai2007.gitee.io/image3d/index.html#/api?fixed=painter1" class="link" target="_blank">普通画笔</a>
+        直接绘制，语法如下：
+    </p>
+    <pre q-code>
+{
+    type: "native",
+    methods: "绘制方法",
+    points: 点集合，包含法向量,
+    color: 颜色
+}
+    </pre>
+    <p>
+        理论上来说，可以绘制任意的三维图形。
+    </p>
+    <p>
+        比如绘制一个正方形：
+    </p>
+    <pre q-code>
+{
+    type: "native",
+    methods: "StripTriangle",
+    points: [
+        1, 0, 1, 0, -1, 0,
+        1, 0, -1, 0, -1, 0,
+        -1, 0, 1, 0, -1, 0,
+        -1, 0, -1, 0, -1, 0
+    ],
+    color: "pink"
+}
+    </pre>
+    <h4 class="item-cls" id="fixed-registerChart.return.item">
+        条目
+    </h4>
+    <h4 id="fixed-registerChart.return.item-cuboid">
+        立方条目
+    </h4>
+    <pre q-code>
+{
+    type: "item",
+    name: "cuboid",
+
+    // 条目的长，一般可以和数据联系起来
+    length: number,
+
+    // 起点，可以写死0或者和数据联系起来
+    start: number,
+
+    // 底部中心，一般可以和数据中数组中的位置联系起来，比如用数组的下标
+    index: number,
+
+    // 小条目的大小，值应该是0～1之间，可以随便设置，当然，也可以和数据联系起来
+    size: number,
+
+    // 颜色，可以写死，或者从params中获取，或者像下面调用api.color方法获取
+    color: api.color(0)
+}
+    </pre>
+    <h4 id="fixed-registerChart.return.item-lines">
+        线条组条目
+    </h4>
+    <pre q-code>
+{
+    type: "item",
+    name: "lines",
+
+    // 一个二维数组，一个个点连起来就是线条
+    // 参考 ‘立方条’的index和length计算
+    points:Array,
+
+    // 颜色，可以写死，或者从params中获取，或者像下面调用api.color方法获取
+    color: api.color(0)
+}
+    </pre>
+    <h4 class="item-cls" id="fixed-registerChart.return.geometry">
+        几何体
+    </h4>
+    <p>
+        也就是常见的球体、长方体等几何的绘制，语法如下：
+    </p>
+    <pre q-code>
+{
+    type: "geometry",
+
+    name: "几何体名称",
+
+    // 参数，不同的几何体参数不一样
+    params: Array,
+
+    // 颜色，可以写死，或者从params中获取，或者像下面调用api.color方法获取
+    color: api.color(0)
+}
+    </pre>
+    <h4 id="fixed-registerChart.return.geometry-cylinder">
+        圆柱
+    </h4>
+    <pre q-code>
+name:"cylinder",
+params:[x,y,z,radius,height]
+    </pre>
+    <h4 id="fixed-registerChart.return.geometry-prism">
+        棱柱
+    </h4>
+    <pre q-code>
+name:"prism",
+params:[x,y,z,radius,height,num]
+    </pre>
+    <h4 id="fixed-registerChart.return.geometry-sphere">
+        球
+    </h4>
+    <pre q-code>
+name:"sphere",
+params:[cx,cy,cz,radius]
+    </pre>
+</template>
+<style>
+    .item-cls {
+        font-size: 16px;
+        color: black;
+        border-bottom: 1px solid black;
+    }
+</style>

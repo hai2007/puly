@@ -3,38 +3,41 @@
         <h2 @click='doScroll("bar")' class='bar'>
             柱状图
         </h2>
-        <h2 @click='doScroll("line")' class='line'>
-            折线图
-        </h2>
-        <h2 @click='doScroll("pie")' class='pie'>
+        <!-- <h2 @click='doScroll("pie")' class='pie'>
             饼图
-        </h2>
-        <h2 @click='doScroll("scatter")' class='scatter'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("scatter")' class='scatter'>
             散点图
-        </h2>
-        <h2 @click='doScroll("map")' class='map'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("map")' class='map'>
             地图
-        </h2>
+        </h2> -->
         <h2 @click='doScroll("candlestick")' class='candlestick'>
             K线图
         </h2>
-        <h2 @click='doScroll("radar")' class='radar'>
+        <h2 @click='doScroll("line")' class='line'>
+            折线图
+        </h2>
+        <!-- <h2 @click='doScroll("radar")' class='radar'>
             雷达图
-        </h2>
-        <h2 @click='doScroll("tree")' class='tree'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("tree")' class='tree'>
             树图
-        </h2>
-        <h2 @click='doScroll("sankey")' class='sankey'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("sankey")' class='sankey'>
             桑基图
-        </h2>
-        <h2 @click='doScroll("gauge")' class='gauge'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("gauge")' class='gauge'>
             仪表盘
-        </h2>
-        <h2 @click='doScroll("zoom")' class='zoom'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("zoom")' class='zoom'>
             数据区域缩放
-        </h2>
-        <h2 @click='doScroll("drag")' class='drag'>
+        </h2> -->
+        <!-- <h2 @click='doScroll("drag")' class='drag'>
             拖拽
+        </h2> -->
+        <h2 @click='doScroll("custom")' class='custom'>
+            自定义
         </h2>
     </div>
     <div id='root-view' class='view'>
@@ -46,92 +49,121 @@
             <li class='bar_simple' @click='openExample("bar_simple")'>
                 简单柱状图
             </li>
+            <li class='bar_colors' @click='openExample("bar_colors")'>
+                多色柱状图
+            </li>
+            <li class='bar_mult' @click='openExample("bar_mult")'>
+                多维柱状图
+            </li>
         </ul>
-        <h2 id='fixed-line'>
-            折线图
-            <span>line</span>
-        </h2>
-        <ul>
 
-        </ul>
-        <h2 id='fixed-pie'>
+        <!-- <h2 id='fixed-pie'>
             饼图
             <span>pie</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
+        <!--
         <h2 id='fixed-scatter'>
             散点图
             <span>scatter</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
-        <h2 id='fixed-map'>
+        <!-- <h2 id='fixed-map'>
             地图
             <span>map</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
         <h2 id='fixed-candlestick'>
             K线图
             <span>candlestick</span>
         </h2>
         <ul>
-
+            <li class='k_simple' @click='openExample("k_simple")'>
+                简单K线图
+            </li>
         </ul>
 
-        <h2 id='fixed-radar'>
+        <h2 id='fixed-line'>
+            折线图
+            <span>line</span>
+        </h2>
+        <ul>
+            <li class='line_bar' @click='openExample("line_bar")'>
+                柱折图
+            </li>
+            <li class='line_bar_middle' @click='openExample("line_bar_middle")'>
+                居中柱折图
+            </li>
+        </ul>
+
+        <!-- <h2 id='fixed-radar'>
             雷达图
             <span>radar</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
-        <h2 id='fixed-tree'>
+        <!-- <h2 id='fixed-tree'>
             树图
             <span>tree</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
-        <h2 id='fixed-sankey'>
+        <!-- <h2 id='fixed-sankey'>
             桑基图
             <span>sankey</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
-        <h2 id='fixed-gauge'>
+        <!-- <h2 id='fixed-gauge'>
             仪表盘
             <span>gauge</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
-        <h2 id='fixed-zoom'>
+        <!-- <h2 id='fixed-zoom'>
             数据区域缩放
             <span>zoom</span>
         </h2>
         <ul>
 
-        </ul>
+        </ul> -->
 
-        <h2 id='fixed-drag'>
+        <!-- <h2 id='fixed-drag'>
             拖拽
             <span>drag</span>
         </h2>
         <ul>
 
+        </ul> -->
+
+        <h2 id='fixed-custom'>
+            自定义
+            <span>custom</span>
+        </h2>
+        <ul>
+            <li class='custom_logo' @click='openExample("custom_logo")'>
+                3D图标
+            </li>
+            <li class='custom_geometry' @click='openExample("custom_geometry")'>
+                几何体
+            </li>
         </ul>
 
     </div>
@@ -180,7 +212,7 @@
                     padding: 10px 0 10px 50px;
                     display: block;
                     text-decoration: none;
-                    color: #6e7079;
+                    color: white;
                     font-size: 14px;
                     line-height: 20px;
                     background-size: 20px auto;
@@ -239,6 +271,10 @@
                     &.drag {
                         background-image: url('./image/drag.svg');
                     }
+
+                    &.custom {
+                        background-image: url('./image/custom.svg');
+                    }
                 }
             }
 
@@ -279,6 +315,34 @@
 
                         &.bar_simple {
                             background-image: url('./image/bar_simple.png');
+                        }
+
+                        &.bar_colors {
+                            background-image: url('./image/bar_colors.png');
+                        }
+
+                        &.custom_logo {
+                            background-image: url('./image/custom_logo.png');
+                        }
+
+                        &.line_bar {
+                            background-image: url('./image/line_bar.png');
+                        }
+
+                        &.k_simple {
+                            background-image: url('./image/k_simple.png');
+                        }
+
+                        &.bar_mult {
+                            background-image: url('./image/bar_mult.png');
+                        }
+
+                        &.line_bar_middle {
+                            background-image: url('./image/line_bar_middle.png');
+                        }
+
+                        &.custom_geometry {
+                            background-image: url('./image/custom_geometry.png');
                         }
                     }
                 }

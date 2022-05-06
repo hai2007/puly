@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.0.0-beta.3
+ * version 1.2.0
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Wed May 04 2022 01:41:26 GMT+0800 (GMT+08:00)
+ * Date:Fri May 06 2022 22:22:11 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -555,33 +555,6 @@
       return [+rgbaArray[0], +rgbaArray[1], +rgbaArray[2], rgbaArray[3] == undefined ? 1 : +rgbaArray[3]];
   }
 
-  var formatTheme = (function (theme) {
-    var _theme = {
-      colors: []
-    };
-
-    if ('colors' in theme) {
-      var _iterator = _createForOfIteratorHelper(theme.colors),
-          _step;
-
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var color = _step.value;
-
-          var _color = formatColor(color);
-
-          _theme.colors.push([_color[0] / 255, _color[1] / 255, _color[2] / 255, _color[3]]);
-        }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
-    }
-
-    return _theme;
-  });
-
   /**
    * 判断一个值是不是Object。
    *
@@ -609,6 +582,17 @@
   }
 
   /**
+   * 判断一个值是不是Boolean。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是Boolean返回true，否则返回false
+   */
+  function _isBoolean (value) {
+      return value === true || value === false ||
+          (value !== null && typeof value === 'object' && getType(value) === '[object Boolean]');
+  }
+
+  /**
    * 判断一个值是不是String。
    *
    * @param {*} value 需要判断类型的值
@@ -630,8 +614,42 @@
    */
 
   var isObject = _isObject;
+  var isBoolean = _isBoolean;
   var isString = _isString;
   var isArray = function (input) { return Array.isArray(input) };
+
+  function formatColor$1 (color) {
+    if (isArray(color)) return color;
+
+    var _color = formatColor(color);
+
+    return [_color[0] / 255, _color[1] / 255, _color[2] / 255, _color[3]];
+  }
+
+  var formatTheme = (function (theme) {
+    var _theme = {
+      colors: []
+    };
+
+    if ('colors' in theme) {
+      var _iterator = _createForOfIteratorHelper(theme.colors),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var color = _step.value;
+
+          _theme.colors.push(formatColor$1(color));
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+
+    return _theme;
+  });
 
   var $RegExp = {
 
@@ -1270,20 +1288,20 @@
    *
    * author 你好2007 < https://hai2007.gitee.io/sweethome >
    *
-   * version 1.3.0
+   * version 1.4.1
    *
    * Copyright (c) 2021-present hai2007 走一步，再走一步。
    * Released under the MIT license
    *
-   * Date:Wed May 04 2022 01:36:13 GMT+0800 (GMT+08:00)
+   * Date:Fri May 06 2022 22:20:16 GMT+0800 (GMT+08:00)
    */
-  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(normal,x,y,z,radius,num,d){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[x,y,z],deg=Math.PI*2/num;if(normal)points.push(0,d,0);points.push(beginX,y,beginZ);if(normal)points.push(0,d,0);for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);if(normal)points.push(0,d,0);}return points}function prismVertical(normal,x,y,z,radius,height,num){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[beginX,y,beginZ],deg=Math.PI*2/num;if(normal){points.push(beginX-x,0,beginZ-z);}points.push(beginX,y+height,beginZ);if(normal){points.push(beginX-x,0,beginZ-z);}for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);if(normal){points.push(point[0]-x,0,point[1]-z);}points.push(point[0],y+height,point[1]);if(normal){points.push(point[0]-x,0,point[1]-z);}}return points}function sphereFragment(normal,cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;if(normal)points.push(0,radius,0);for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);if(normal)points.push(point1[0]-cx,point[1]-cy,point1[1]-cz);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);if(normal)points.push(point2[0]-cx,point2[1]-cy,point2[1]-cz);}points.push(cx,cy-radius,cz);if(normal)points.push(0,-radius,0);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(options.normal,x,y,z,radius,num,-1),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(options.normal,x,y+height,z,radius,num,1),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(options.normal,x,y,z,radius,height,num),length:2*num+2,methods:"StripTriangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(options.normal,cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
+  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}function _toConsumableArray(arr){return _arrayWithoutHoles(arr)||_iterableToArray(arr)||_unsupportedIterableToArray(arr)||_nonIterableSpread()}function _arrayWithoutHoles(arr){if(Array.isArray(arr))return _arrayLikeToArray(arr)}function _iterableToArray(iter){if(typeof Symbol!=="undefined"&&iter[Symbol.iterator]!=null||iter["@@iterator"]!=null)return Array.from(iter)}function _unsupportedIterableToArray(o,minLen){if(!o)return;if(typeof o==="string")return _arrayLikeToArray(o,minLen);var n=Object.prototype.toString.call(o).slice(8,-1);if(n==="Object"&&o.constructor)n=o.constructor.name;if(n==="Map"||n==="Set")return Array.from(o);if(n==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return _arrayLikeToArray(o,minLen)}function _arrayLikeToArray(arr,len){if(len==null||len>arr.length)len=arr.length;for(var i=0,arr2=new Array(len);i<len;i++)arr2[i]=arr[i];return arr2}function _nonIterableSpread(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(normal,x,y,z,radius,num,d){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[x,y,z],deg=Math.PI*2/num;if(normal)points.push(0,d,0);points.push(beginX,y,beginZ);if(normal)points.push(0,d,0);for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);if(normal)points.push(0,d,0);}return points}function prismVertical(normal,x,y,z,radius,height,num){var points=[];var beginPosition;if(num==4){beginPosition=rotate(x,z,Math.PI*.25,x-radius,z);}else {beginPosition=[x+radius,z];}var deg=Math.PI*2/num,degHalf=Math.PI*2/(num*2);var endPosition,normalPosition=[];for(var i=0;i<num;i++){endPosition=rotate.apply(void 0,[x,z,deg].concat(_toConsumableArray(beginPosition)));if(normal){var halfPosition=rotate.apply(void 0,[x,z,degHalf].concat(_toConsumableArray(beginPosition)));normalPosition=[halfPosition[0],0,halfPosition[1]];}points.push.apply(points,[beginPosition[0],y,beginPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[beginPosition[0],y+height,beginPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[endPosition[0],y+height,endPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[beginPosition[0],y,beginPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[endPosition[0],y,endPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[endPosition[0],y+height,endPosition[1]].concat(_toConsumableArray(normalPosition)));beginPosition=endPosition;}return points}function sphereFragment(normal,cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;if(normal)points.push(0,radius,0);for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);if(normal)points.push(point1[0]-cx,point[1]-cy,point1[1]-cz);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);if(normal)points.push(point2[0]-cx,point2[1]-cy,point2[1]-cz);}points.push(cx,cy-radius,cz);if(normal)points.push(0,-radius,0);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(options.normal,x,y,z,radius,num,height>0?-1:1),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(options.normal,x,y+height,z,radius,num,height>0?1:-1),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(options.normal,x,y,z,radius,height,num),length:6*num,methods:"Triangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(options.normal,cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
   });
 
   var calc = (function (geometrys, option) {
     var threeGeometry = threeGeometry_min({
       // 待定，实际需要动态计算
-      precision: 1,
+      precision: 0.1,
       normal: true
     }); // 坐标值分量最大
 
@@ -1306,6 +1324,27 @@
             var label = Math.max(Math.abs(Math.ceil(geometry.index + geometry.size * 0.5)), Math.abs(Math.floor(geometry.index - geometry.size * 0.5)));
             maxValue = Math.max(maxValue, value);
             maxLabel = Math.max(maxLabel, label);
+          } // 连线组
+          else if (geometry.name == 'lines') {
+            var _iterator3 = _createForOfIteratorHelper(geometry.points),
+                _step3;
+
+            try {
+              for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                var point = _step3.value;
+
+                var _value = Math.abs(point[1]);
+
+                var _label = Math.ceil(Math.abs(point[0]));
+
+                maxValue = Math.max(maxValue, _value);
+                maxLabel = Math.max(maxLabel, _label);
+              }
+            } catch (err) {
+              _iterator3.e(err);
+            } finally {
+              _iterator3.f();
+            }
           }
         }
       }
@@ -1334,7 +1373,51 @@
                 color: geometry.color
               });
             }, geometry.index / maxLabel, geometry.start / maxValue, 0, 1 / maxLabel * geometry.size / 2, geometry.length / maxValue, 4);
+          } // 连线组
+          else if (geometry.name == 'lines') {
+            var points = [];
+
+            var _iterator4 = _createForOfIteratorHelper(geometry.points),
+                _step4;
+
+            try {
+              for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                var _point = _step4.value;
+                points.push(_point[0] / maxLabel, _point[1] / maxValue, 0, 0, 0, 1);
+              }
+            } catch (err) {
+              _iterator4.e(err);
+            } finally {
+              _iterator4.f();
+            }
+
+            geometryArray.push({
+              data: {
+                length: geometry.points.length,
+                methods: "StripLine",
+                points: points
+              },
+              color: geometry.color
+            });
           }
+        } // 原生方法
+        else if (geometry.type == 'native') {
+          geometryArray.push({
+            data: {
+              length: geometry.points.length / 6,
+              methods: geometry.methods,
+              points: geometry.points
+            },
+            color: formatColor$1(geometry.color)
+          });
+        } // 几何
+        else if (geometry.type == 'geometry') {
+          threeGeometry[geometry.name].apply(threeGeometry, [function (data) {
+            geometryArray.push({
+              data: data,
+              color: formatColor$1(geometry.color)
+            });
+          }].concat(_toConsumableArray(geometry.params)));
         }
       };
 
@@ -1353,7 +1436,7 @@
   });
 
   var image3D_min = createCommonjsModule(function (module) {
-  var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(r){return typeof r}:function(r){return r&&typeof Symbol==="function"&&r.constructor===Symbol&&r!==Symbol.prototype?"symbol":typeof r};(function(){var u=function r(t,n,e){var i=t.createShader(n);if(i==null)throw new Error("Unable to create shader!");t.shaderSource(i,e);t.compileShader(i);if(!t.getShaderParameter(i,t.COMPILE_STATUS))throw new Error("Failed to compile shader:"+t.getShaderInfoLog(i));return i};var o=function r(t,n,e){var i=u(t,t.VERTEX_SHADER,n),o=u(t,t.FRAGMENT_SHADER,e);var a=t.createProgram();t.attachShader(a,i);t.attachShader(a,o);t.linkProgram(a);if(!t.getProgramParameter(a,t.LINK_STATUS))throw new Error("Failed to link program: "+t.getProgramInfoLog(a));t.useProgram(a);return a};var a=function r(t,n){var e=t.createBuffer(),i=n?t.ELEMENT_ARRAY_BUFFER:t.ARRAY_BUFFER;t.bindBuffer(i,e);return e};var l=function r(t,n,e,i){var o=i?t.ELEMENT_ARRAY_BUFFER:t.ARRAY_BUFFER;t.bufferData(o,n,e);};var v=function r(t,n,e,i,o,a,u){t.vertexAttribPointer(n,e,i,u||false,o||0,a||0);t.enableVertexAttribArray(n);};var c=function r(t,n,e,i){var o=t.createTexture();if(i=="2d"){e=e||0;t.activeTexture(t["TEXTURE"+e]);}t.bindTexture(n,o);return o};var m=function r(t,n,e,i,o,a){i={rgb:t.RGB,rgba:t.RGBA,alpha:t.ALPHA}[i]||t.RGBA;t.texImage2D(n,e||0,i,i,{}[o]||t.UNSIGNED_BYTE,a);};var g=function r(t,n,e,i,o,a,u,f,c){i={rgb:t.RGB,rgba:t.RGBA,alpha:t.ALPHA}[i]||t.RGBA;e=e||0;o={}[o]||t.UNSIGNED_BYTE;var s=[t.TEXTURE_CUBE_MAP_POSITIVE_X,t.TEXTURE_CUBE_MAP_NEGATIVE_X,t.TEXTURE_CUBE_MAP_POSITIVE_Y,t.TEXTURE_CUBE_MAP_NEGATIVE_Y,t.TEXTURE_CUBE_MAP_POSITIVE_Z,t.TEXTURE_CUBE_MAP_NEGATIVE_Z],l=void 0,v=void 0;for(l=0;l<s.length;l++){v=s[l];t.texImage2D(v,e,i,u,f,0,i,o,null);t.bindTexture(n,c);t.texImage2D(v,e,i,i,o,a[l]);}t.generateMipmap(n);};function f(u){return {setAttribute1f:function r(t,n){var e=u.getAttribLocation(u.program,t);u.vertexAttrib1f(e,n);},setAttribute2f:function r(t,n,e){var i=u.getAttribLocation(u.program,t);u.vertexAttrib2f(i,n,e);},setAttribute3f:function r(t,n,e,i){var o=u.getAttribLocation(u.program,t);u.vertexAttrib3f(o,n,e,i);},setAttribute4f:function r(t,n,e,i,o){var a=u.getAttribLocation(u.program,t);u.vertexAttrib4f(a,n,e,i,o);},setAttribute1i:function r(t,n){var e=u.getAttribLocation(u.program,t);u.vertexAttrib1i(e,n);},setAttribute2i:function r(t,n,e){var i=u.getAttribLocation(u.program,t);u.vertexAttrib2i(i,n,e);},setAttribute3i:function r(t,n,e,i){var o=u.getAttribLocation(u.program,t);u.vertexAttrib3i(o,n,e,i);},setAttribute4i:function r(t,n,e,i,o){var a=u.getAttribLocation(u.program,t);u.vertexAttrib4i(a,n,e,i,o);},setUniform1f:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniform1f(e,n);},setUniform2f:function r(t,n,e){var i=u.getUniformLocation(u.program,t);u.uniform2f(i,n,e);},setUniform3f:function r(t,n,e,i){var o=u.getUniformLocation(u.program,t);u.uniform3f(o,n,e,i);},setUniform4f:function r(t,n,e,i,o){var a=u.getUniformLocation(u.program,t);u.uniform4f(a,n,e,i,o);},setUniform1i:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniform1i(e,n);},setUniform2i:function r(t,n,e){var i=u.getUniformLocation(u.program,t);u.uniform2i(i,n,e);},setUniform3i:function r(t,n,e,i){var o=u.getUniformLocation(u.program,t);u.uniform3i(o,n,e,i);},setUniform4i:function r(t,n,e,i,o){var a=u.getUniformLocation(u.program,t);u.uniform4i(a,n,e,i,o);},setUniformMatrix2fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix2fv(e,false,n);},setUniformMatrix3fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix3fv(e,false,n);},setUniformMatrix4fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix4fv(e,false,n);}}}function E(i){var o={byte:i.UNSIGNED_BYTE,short:i.UNSIGNED_SHORT};return {openDeep:function r(){i.enable(i.DEPTH_TEST);return this},points:function r(t,n,e){if(e){i.drawElements(i.POINTS,n,o[e],t);}else {i.drawArrays(i.POINTS,t,n);}return this},lines:function r(t,n,e){if(e){i.drawElements(i.LINES,n,o[e],t);}else {i.drawArrays(i.LINES,t,n);}return this},stripLines:function r(t,n,e){if(e){i.drawElements(i.LINE_STRIP,n,o[e],t);}else {i.drawArrays(i.LINE_STRIP,t,n);}return this},loopLines:function r(t,n,e){if(e){i.drawElements(i.LINE_LOOP,n,o[e],t);}else {i.drawArrays(i.LINE_LOOP,t,n);}return this},triangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLES,n,o[e],t);}else {i.drawArrays(i.TRIANGLES,t,n);}return this},stripTriangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLE_STRIP,n,o[e],t);}else {i.drawArrays(i.TRIANGLE_STRIP,t,n);}return this},fanTriangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLE_FAN,n,o[e],t);}else {i.drawArrays(i.TRIANGLE_FAN,t,n);}return this}}}var _=function r(t,n){var e=["webgl","experimental-webgl","webkit-3d","moz-webgl"],i=null,o=void 0;for(o=0;o<e.length;o++){try{i=t.getContext(e[o],n);}catch(r){}if(i)break}if(!i)throw new Error("Non canvas or browser does not support webgl.");return i};function s(r,t){var s=_(r,t),e={_gl_:s,painter:function r(){return E(s)},shader:function r(t,n){s.program=o(s,t,n);return e},buffer:function r(e){a(s,e);var f=void 0,c={write:function r(t,n){n=n||s.STATIC_DRAW;l(s,t,n,e);f=t;return c},use:function r(t,n,e,i,o,a){var u=f.BYTES_PER_ELEMENT;if(typeof t=="string")t=s.getAttribLocation(s.program,t);e=e||0;i=i||0;o=o||s.FLOAT;v(s,t,n,o,e*u,i*u,a);return c}};return c},texture:function u(r,t){var f={"2d":s.TEXTURE_2D,cube:s.TEXTURE_CUBE_MAP}[r];var u=c(s,f,t,r);s.texParameteri(f,s.TEXTURE_MIN_FILTER,s.NEAREST);s.texParameteri(f,s.TEXTURE_WRAP_S,s.CLAMP_TO_EDGE);s.texParameteri(f,s.TEXTURE_WRAP_T,s.CLAMP_TO_EDGE);var o={useImage:function r(t,n,e,i){m(s,f,n,e,i,t);return o},useCube:function r(t,n,e,i,o,a){g(s,f,i,o,a,t,n,e,u);}};return o}};var n=f(s);for(var i in n){e[i]=n[i];}s.viewport(0,0,s.canvas.width,s.canvas.height);s.depthFunc(s.LEQUAL);return e}function p(r,t){for(var n in t){try{r[n]=t[n];}catch(r){throw new Error("Illegal property key : "+n)}}return r}function d(n,r){return function(t){return new function r(){var i=this;var o=n.buffer(t);this.write=function(r){o.write(r);return i};if(!t){this.use=function(r,t,n,e){o.use(r,t,n,e);return i};}}}}function A(r,t,n,e){e=e||0;var i=Math.sqrt(t*t+n*n+e*e);return [1,0,0,0,0,1,0,0,0,0,1,0,t*r/i,n*r/i,e*r/i,1]}function b(r){var t=Math.sin(r),n=Math.cos(r);return [n,t,0,0,-t,n,0,0,0,0,1,0,0,0,0,1]}function h(r,t,n,e,i,o){e=e||0;i=i||0;o=o||0;return [r,0,0,0,0,t,0,0,0,0,n,0,e-e*r,i-i*t,o-o*n,1]}function T(r,t,n,e,i,o){if(typeof r==="number"&&typeof t==="number"){if(typeof n!=="number"){n=0;e=r;i=t;o=1;}else if(typeof e!=="number"||typeof i!=="number"||typeof o!=="number"){e=r;i=t;o=n;r=0;t=0;n=0;}if(r==e&&t==i&&n==o)throw new Error("It's not a legitimate ray!");var a=Math.sqrt((e-r)*(e-r)+(i-t)*(i-t)),u=a!=0?(i-t)/a:1,f=a!=0?(e-r)/a:0,c=(e-r)*f+(i-t)*u,s=o-n,l=Math.sqrt(c*c+s*s),v=l!=0?s/l:1,m=l!=0?c/l:0;return [[u,v*f,f*m,0,-f,u*v,u*m,0,0,-m,v,0,t*f-r*u,n*m-r*f*v-t*u*v,-r*f*m-t*u*m-n*v,1],[u,-f,0,0,v*f,v*u,-m,0,f*m,u*m,v,0,r,t,n,1]]}else {throw new Error("a1 and b1 is required!")}}var y=function r(t,n){var e=[];for(var i=0;i<4;i++){for(var o=0;o<n.length/4;o++){e[o*4+i]=t[i]*n[o*4]+t[i+4]*n[o*4+1]+t[i+8]*n[o*4+2]+t[i+12]*n[o*4+3];}}return e};function w(r){var c=r||[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];var s={move:function r(t,n,e,i){c=y(A(t,n,e,i),c);return s},rotate:function r(t,n,e,i,o,a,u){var f=T(n,e,i,o,a,u);c=y(y(y(f[1],b(t)),f[0]),c);return s},scale:function r(t,n,e,i,o,a){c=y(h(t,n,e,i,o,a),c);return s},multiply:function r(t,n){c=n?y(c,t):y(t,c);return s},use:function r(t,n,e,i){e=e||0;i=i||1;var o=y(c,[t,n,e,i]);o[0]=+o[0].toFixed(7);o[1]=+o[1].toFixed(7);o[2]=+o[2].toFixed(7);o[3]=+o[3].toFixed(7);return o},value:function r(){return c}};return s}var L=function r(t){return Array.isArray(t)};function U(i,r){return function(){var n=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};return new function r(){var u=this;var e=i._gl_.canvas.clientWidth/i._gl_.canvas.clientHeight;if(L(n.size)){n.size=n.size[0];console.warn('"options.size" should be a number. The writing of array is out of date: https://hai2007.gitee.io/image3d/index.html#/api?fixed=camera-set');}var f=w();var t=n.proof?-1:1;f.multiply([1/n.size,0,0,0,0,1/n.size,0,0,0,0,t/n.size,0,0,0,0,1]);this.setProportion=function(r){e=r;return u};this.rotateEye=function(r,t,n,e,i,o,a){f.rotate(-r,t,n,e,i,o,a);return u};this.moveEye=function(r,t,n,e){f.move(-r,t,n,e);return u};this.rotateBody=function(r,t,n,e,i,o,a){f.rotate(r,t,n,e,i,o,a);return u};this.moveBody=function(r,t,n,e){f.move(r,t,n,e);return u};this.scaleBody=function(r,t,n,e,i,o){f.scale(r,t,n,e,i,o);return u};this.value=function(){var r=1;var t=1;if(e>1){t=e;}else {r=1/e;}var n=Math.max(r,t);return w(f.value()).multiply([r,0,0,0,0,t,0,0,0,0,n,0,0,0,0,1]).value()};}}}function e(n,e){e.drawPoint=function(r,t){n.points(r,t);return e};e.drawLine=function(r,t){n.lines(r,t);return e};e.drawStripLine=function(r,t){n.stripLines(r,t);return e};e.drawLoopLine=function(r,t){n.loopLines(r,t);return e};e.drawTriangle=function(r,t){n.triangles(r,t);return e};e.drawStripTriangle=function(r,t){n.stripTriangles(r,t);return e};e.drawFanTriangle=function(r,t){n.fanTriangles(r,t);return e};}function i(e,i){i.elemPoint=function(r,t,n){n=n||"byte";e.points(r,t,n);return i};i.elemLine=function(r,t,n){n=n||"byte";e.lines(r,t,n);return i};i.elemStripLine=function(r,t,n){n=n||"byte";e.stripLines(r,t,n);return i};i.elemLoopLine=function(r,t,n){n=n||"byte";e.loopLines(r,t,n);return i};i.elemTriangle=function(r,t,n){n=n||"byte";e.triangles(r,t,n);return i};i.elemStripTriangle=function(r,t,n){n=n||"byte";e.stripTriangles(r,t,n);return i};i.elemFanTriangle=function(r,t,n){n=n||"byte";e.fanTriangles(r,t,n);return i};}function R(r,t){var n=r.painter();if(t.depth){n.openDeep();}return function(){return new function r(){e(n,this);i(n,this);}}}function x(i,r){return function(e){return new function r(){var t=this;var n=i.texture("2d",e);this.write=function(r){n.useImage(r);return t};}}}function I(t,r){return function(f,c){return new function r(){var a=this;var u=t.texture("cube");this.write=function(r,t,n,e,i,o){u.useCube([r,t,n,e,i,o],f,c);return a};}}}var t={vs:"\n    attribute vec4 a_position;\n    attribute vec4 a_color;\n    attribute float a_size;\n    varying vec4 v_color;\n    void main(){\n        gl_Position=a_position;\n        gl_PointSize=a_size;\n        v_color=a_color;\n    }\n    ",fs:"\n    precision mediump float;\n    varying vec4 v_color;\n    void main(){\n        gl_FragColor=v_color;\n    }\n    "};var n={vs:"\n    attribute vec4 a_position;\n    attribute vec4 a_color;\n    attribute float a_size;\n    varying vec4 v_color;\n    uniform mat4 u_matrix;\n    void main(){\n        gl_Position=u_matrix * a_position;\n        gl_PointSize=a_size;\n        v_color=a_color;\n    }\n    ",fs:"\n    precision mediump float;\n    varying vec4 v_color;\n    void main(){\n        gl_FragColor=v_color;\n    }\n    "};function S(r){return {type_default:t,type_camera:n}["type_"+r]}var r=function r(t,n){var e=p({depth:false},n||{});var o=s(t);var i=e["vertex-shader"],a=e["fragment-shader"];if(!i||!a){var u=S(e.shader||"default");i=u.vs;a=u.fs;}o.shader(i,a);r.fn=r.prototype;r.fn.Buffer=d(o);r.fn.Camera=U(o);r.fn.Painter=R(o,e);r.fn.Texture2D=x(o);r.fn.TextureCube=I(o);r.fn.setAttributeFloat=function(r,t,n,e,i){o["setAttribute"+(arguments.length-1)+"f"](r,t,n,e,i);return this};r.fn.setAttributeInt=function(r,t,n,e,i){o["setAttribute"+(arguments.length-1)+"i"](r,t,n,e,i);return this};r.fn.setUniformFloat=function(r,t,n,e,i){o["setUniform"+(arguments.length-1)+"f"](r,t,n,e,i);return this};r.fn.setUniformInt=function(r,t,n,e,i){o["setUniform"+(arguments.length-1)+"i"](r,t,n,e,i);return this};r.fn.setUniformMatrix=function(r,t){var n={4:2,9:3,16:4}[t.length];o["setUniformMatrix"+n+"fv"](r,t);return this};};r.core=s;if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=r;}else {var P=window.image3D;r.noConflict=function(){if(window.image3D===r){window.image3D=P;}return r};window.image3D=r;}})();
+  var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(r){return typeof r}:function(r){return r&&typeof Symbol==="function"&&r.constructor===Symbol&&r!==Symbol.prototype?"symbol":typeof r};(function(){var u=function r(t,n,e){var i=t.createShader(n);if(i==null)throw new Error("Unable to create shader!");t.shaderSource(i,e);t.compileShader(i);if(!t.getShaderParameter(i,t.COMPILE_STATUS))throw new Error("Failed to compile shader:"+t.getShaderInfoLog(i));return i};var o=function r(t,n,e){var i=u(t,t.VERTEX_SHADER,n),o=u(t,t.FRAGMENT_SHADER,e);var a=t.createProgram();t.attachShader(a,i);t.attachShader(a,o);t.linkProgram(a);if(!t.getProgramParameter(a,t.LINK_STATUS))throw new Error("Failed to link program: "+t.getProgramInfoLog(a));t.useProgram(a);return a};var a=function r(t,n){var e=t.createBuffer(),i=n?t.ELEMENT_ARRAY_BUFFER:t.ARRAY_BUFFER;t.bindBuffer(i,e);return e};var l=function r(t,n,e,i){var o=i?t.ELEMENT_ARRAY_BUFFER:t.ARRAY_BUFFER;t.bufferData(o,n,e);};var v=function r(t,n,e,i,o,a,u){t.vertexAttribPointer(n,e,i,u||false,o||0,a||0);t.enableVertexAttribArray(n);};var c=function r(t,n,e,i){var o=t.createTexture();if(i=="2d"){e=e||0;t.activeTexture(t["TEXTURE"+e]);}t.bindTexture(n,o);return o};var m=function r(t,n,e,i,o,a){i={rgb:t.RGB,rgba:t.RGBA,alpha:t.ALPHA}[i]||t.RGBA;t.texImage2D(n,e||0,i,i,{}[o]||t.UNSIGNED_BYTE,a);};var g=function r(t,n,e,i,o,a,u,f,c){i={rgb:t.RGB,rgba:t.RGBA,alpha:t.ALPHA}[i]||t.RGBA;e=e||0;o={}[o]||t.UNSIGNED_BYTE;var s=[t.TEXTURE_CUBE_MAP_POSITIVE_X,t.TEXTURE_CUBE_MAP_NEGATIVE_X,t.TEXTURE_CUBE_MAP_POSITIVE_Y,t.TEXTURE_CUBE_MAP_NEGATIVE_Y,t.TEXTURE_CUBE_MAP_POSITIVE_Z,t.TEXTURE_CUBE_MAP_NEGATIVE_Z],l=void 0,v=void 0;for(l=0;l<s.length;l++){v=s[l];t.texImage2D(v,e,i,u,f,0,i,o,null);t.bindTexture(n,c);t.texImage2D(v,e,i,i,o,a[l]);}t.generateMipmap(n);};function f(u){return {setAttribute1f:function r(t,n){var e=u.getAttribLocation(u.program,t);u.vertexAttrib1f(e,n);},setAttribute2f:function r(t,n,e){var i=u.getAttribLocation(u.program,t);u.vertexAttrib2f(i,n,e);},setAttribute3f:function r(t,n,e,i){var o=u.getAttribLocation(u.program,t);u.vertexAttrib3f(o,n,e,i);},setAttribute4f:function r(t,n,e,i,o){var a=u.getAttribLocation(u.program,t);u.vertexAttrib4f(a,n,e,i,o);},setAttribute1i:function r(t,n){var e=u.getAttribLocation(u.program,t);u.vertexAttrib1i(e,n);},setAttribute2i:function r(t,n,e){var i=u.getAttribLocation(u.program,t);u.vertexAttrib2i(i,n,e);},setAttribute3i:function r(t,n,e,i){var o=u.getAttribLocation(u.program,t);u.vertexAttrib3i(o,n,e,i);},setAttribute4i:function r(t,n,e,i,o){var a=u.getAttribLocation(u.program,t);u.vertexAttrib4i(a,n,e,i,o);},setUniform1f:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniform1f(e,n);},setUniform2f:function r(t,n,e){var i=u.getUniformLocation(u.program,t);u.uniform2f(i,n,e);},setUniform3f:function r(t,n,e,i){var o=u.getUniformLocation(u.program,t);u.uniform3f(o,n,e,i);},setUniform4f:function r(t,n,e,i,o){var a=u.getUniformLocation(u.program,t);u.uniform4f(a,n,e,i,o);},setUniform1i:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniform1i(e,n);},setUniform2i:function r(t,n,e){var i=u.getUniformLocation(u.program,t);u.uniform2i(i,n,e);},setUniform3i:function r(t,n,e,i){var o=u.getUniformLocation(u.program,t);u.uniform3i(o,n,e,i);},setUniform4i:function r(t,n,e,i,o){var a=u.getUniformLocation(u.program,t);u.uniform4i(a,n,e,i,o);},setUniformMatrix2fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix2fv(e,false,n);},setUniformMatrix3fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix3fv(e,false,n);},setUniformMatrix4fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix4fv(e,false,n);}}}function E(i){var o={byte:i.UNSIGNED_BYTE,short:i.UNSIGNED_SHORT};return {openDeep:function r(){i.enable(i.DEPTH_TEST);return this},points:function r(t,n,e){if(e){i.drawElements(i.POINTS,n,o[e],t);}else {i.drawArrays(i.POINTS,t,n);}return this},lines:function r(t,n,e){if(e){i.drawElements(i.LINES,n,o[e],t);}else {i.drawArrays(i.LINES,t,n);}return this},stripLines:function r(t,n,e){if(e){i.drawElements(i.LINE_STRIP,n,o[e],t);}else {i.drawArrays(i.LINE_STRIP,t,n);}return this},loopLines:function r(t,n,e){if(e){i.drawElements(i.LINE_LOOP,n,o[e],t);}else {i.drawArrays(i.LINE_LOOP,t,n);}return this},triangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLES,n,o[e],t);}else {i.drawArrays(i.TRIANGLES,t,n);}return this},stripTriangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLE_STRIP,n,o[e],t);}else {i.drawArrays(i.TRIANGLE_STRIP,t,n);}return this},fanTriangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLE_FAN,n,o[e],t);}else {i.drawArrays(i.TRIANGLE_FAN,t,n);}return this}}}var _=function r(t,n){var e=["webgl","experimental-webgl","webkit-3d","moz-webgl"],i=null,o=void 0;for(o=0;o<e.length;o++){try{i=t.getContext(e[o],n);}catch(r){}if(i)break}if(!i)throw new Error("Non canvas or browser does not support webgl.");return i};function s(r,t){var s=_(r,t),e={_gl_:s,painter:function r(){return E(s)},shader:function r(t,n){s.program=o(s,t,n);return e},buffer:function r(e){a(s,e);var f=void 0,c={write:function r(t,n){n=n||s.STATIC_DRAW;l(s,t,n,e);f=t;return c},use:function r(t,n,e,i,o,a){var u=f.BYTES_PER_ELEMENT;if(typeof t=="string")t=s.getAttribLocation(s.program,t);e=e||0;i=i||0;o=o||s.FLOAT;v(s,t,n,o,e*u,i*u,a);return c}};return c},texture:function u(r,t){var f={"2d":s.TEXTURE_2D,cube:s.TEXTURE_CUBE_MAP}[r];var u=c(s,f,t,r);s.texParameteri(f,s.TEXTURE_MIN_FILTER,s.NEAREST);s.texParameteri(f,s.TEXTURE_WRAP_S,s.CLAMP_TO_EDGE);s.texParameteri(f,s.TEXTURE_WRAP_T,s.CLAMP_TO_EDGE);var o={useImage:function r(t,n,e,i){m(s,f,n,e,i,t);return o},useCube:function r(t,n,e,i,o,a){g(s,f,i,o,a,t,n,e,u);}};return o}};var n=f(s);for(var i in n){e[i]=n[i];}s.viewport(0,0,s.canvas.width,s.canvas.height);s.depthFunc(s.LEQUAL);return e}function p(r,t){for(var n in t){try{r[n]=t[n];}catch(r){throw new Error("Illegal property key : "+n)}}return r}function d(n,r){return function(t){return new function r(){var i=this;var o=n.buffer(t);this.write=function(r){o.write(r);return i};if(!t){this.use=function(r,t,n,e){o.use(r,t,n,e);return i};}}}}function A(r,t,n,e){e=e||0;var i=Math.sqrt(t*t+n*n+e*e);return [1,0,0,0,0,1,0,0,0,0,1,0,t*r/i,n*r/i,e*r/i,1]}function b(r){var t=Math.sin(r),n=Math.cos(r);return [n,t,0,0,-t,n,0,0,0,0,1,0,0,0,0,1]}function h(r,t,n,e,i,o){e=e||0;i=i||0;o=o||0;return [r,0,0,0,0,t,0,0,0,0,n,0,e-e*r,i-i*t,o-o*n,1]}function T(r,t,n,e,i,o){if(typeof r==="number"&&typeof t==="number"){if(typeof n!=="number"){n=0;e=r;i=t;o=1;}else if(typeof e!=="number"||typeof i!=="number"||typeof o!=="number"){e=r;i=t;o=n;r=0;t=0;n=0;}if(r==e&&t==i&&n==o)throw new Error("It's not a legitimate ray!");var a=Math.sqrt((e-r)*(e-r)+(i-t)*(i-t)),u=a!=0?(i-t)/a:1,f=a!=0?(e-r)/a:0,c=(e-r)*f+(i-t)*u,s=o-n,l=Math.sqrt(c*c+s*s),v=l!=0?s/l:1,m=l!=0?c/l:0;return [[u,v*f,f*m,0,-f,u*v,u*m,0,0,-m,v,0,t*f-r*u,n*m-r*f*v-t*u*v,-r*f*m-t*u*m-n*v,1],[u,-f,0,0,v*f,v*u,-m,0,f*m,u*m,v,0,r,t,n,1]]}else {throw new Error("a1 and b1 is required!")}}var y=function r(t,n){var e=[];for(var i=0;i<4;i++){for(var o=0;o<n.length/4;o++){e[o*4+i]=t[i]*n[o*4]+t[i+4]*n[o*4+1]+t[i+8]*n[o*4+2]+t[i+12]*n[o*4+3];}}return e};function w(r){var c=r||[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];var s={move:function r(t,n,e,i){c=y(A(t,n,e,i),c);return s},rotate:function r(t,n,e,i,o,a,u){var f=T(n,e,i,o,a,u);c=y(y(y(f[1],b(t)),f[0]),c);return s},scale:function r(t,n,e,i,o,a){c=y(h(t,n,e,i,o,a),c);return s},multiply:function r(t,n){c=n?y(c,t):y(t,c);return s},use:function r(t,n,e,i){e=e||0;i=i||1;var o=y(c,[t,n,e,i]);o[0]=+o[0].toFixed(7);o[1]=+o[1].toFixed(7);o[2]=+o[2].toFixed(7);o[3]=+o[3].toFixed(7);return o},value:function r(){return c}};return s}var L=function r(t){return Array.isArray(t)};function U(i,r){return function(){var n=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};return new function r(){var u=this;var e=i._gl_.canvas.clientWidth/i._gl_.canvas.clientHeight;if(L(n.size)){n.size=n.size[0];console.warn('"options.size" should be a number. The writing of array is out of date: https://hai2007.gitee.io/image3d/index.html#/api?fixed=camera-set');}if(!("size"in n)){n.size=1;}var f=w();var t=n.proof?-1:1;f.multiply([1/n.size,0,0,0,0,1/n.size,0,0,0,0,t/n.size,0,0,0,0,1]);this.setProportion=function(r){e=r;return u};this.rotateEye=function(r,t,n,e,i,o,a){f.rotate(-r,t,n,e,i,o,a);return u};this.moveEye=function(r,t,n,e){f.move(-r,t,n,e);return u};this.rotateBody=function(r,t,n,e,i,o,a){f.rotate(r,t,n,e,i,o,a);return u};this.moveBody=function(r,t,n,e){f.move(r,t,n,e);return u};this.scaleBody=function(r,t,n,e,i,o){f.scale(r,t,n,e,i,o);return u};this.value=function(){var r=1;var t=1;if(e>1){t=e;}else {r=1/e;}var n=Math.max(r,t);return w(f.value()).multiply([r,0,0,0,0,t,0,0,0,0,n,0,0,0,0,1]).value()};}}}function e(n,e){e.drawPoint=function(r,t){n.points(r,t);return e};e.drawLine=function(r,t){n.lines(r,t);return e};e.drawStripLine=function(r,t){n.stripLines(r,t);return e};e.drawLoopLine=function(r,t){n.loopLines(r,t);return e};e.drawTriangle=function(r,t){n.triangles(r,t);return e};e.drawStripTriangle=function(r,t){n.stripTriangles(r,t);return e};e.drawFanTriangle=function(r,t){n.fanTriangles(r,t);return e};}function i(e,i){i.elemPoint=function(r,t,n){n=n||"byte";e.points(r,t,n);return i};i.elemLine=function(r,t,n){n=n||"byte";e.lines(r,t,n);return i};i.elemStripLine=function(r,t,n){n=n||"byte";e.stripLines(r,t,n);return i};i.elemLoopLine=function(r,t,n){n=n||"byte";e.loopLines(r,t,n);return i};i.elemTriangle=function(r,t,n){n=n||"byte";e.triangles(r,t,n);return i};i.elemStripTriangle=function(r,t,n){n=n||"byte";e.stripTriangles(r,t,n);return i};i.elemFanTriangle=function(r,t,n){n=n||"byte";e.fanTriangles(r,t,n);return i};}function R(r,t){var n=r.painter();if(t.depth){n.openDeep();}return function(){return new function r(){e(n,this);i(n,this);}}}function x(i,r){return function(e){return new function r(){var t=this;var n=i.texture("2d",e);this.write=function(r){n.useImage(r);return t};}}}function I(t,r){return function(f,c){return new function r(){var a=this;var u=t.texture("cube");this.write=function(r,t,n,e,i,o){u.useCube([r,t,n,e,i,o],f,c);return a};}}}var t={vs:"\n    attribute vec4 a_position;\n    attribute vec4 a_color;\n    attribute float a_size;\n    varying vec4 v_color;\n    void main(){\n        gl_Position=a_position;\n        gl_PointSize=a_size;\n        v_color=a_color;\n    }\n    ",fs:"\n    precision mediump float;\n    varying vec4 v_color;\n    void main(){\n        gl_FragColor=v_color;\n    }\n    "};var n={vs:"\n    attribute vec4 a_position;\n    attribute vec4 a_color;\n    attribute float a_size;\n    varying vec4 v_color;\n    uniform mat4 u_matrix;\n    void main(){\n        gl_Position=u_matrix * a_position;\n        gl_PointSize=a_size;\n        v_color=a_color;\n    }\n    ",fs:"\n    precision mediump float;\n    varying vec4 v_color;\n    void main(){\n        gl_FragColor=v_color;\n    }\n    "};function S(r){return {type_default:t,type_camera:n}["type_"+r]}var r=function r(t,n){var e=p({depth:false},n||{});var o=s(t);var i=e["vertex-shader"],a=e["fragment-shader"];if(!i||!a){var u=S(e.shader||"default");i=u.vs;a=u.fs;}o.shader(i,a);r.fn=r.prototype;r.fn.Buffer=d(o);r.fn.Camera=U(o);r.fn.Painter=R(o,e);r.fn.Texture2D=x(o);r.fn.TextureCube=I(o);r.fn.setAttributeFloat=function(r,t,n,e,i){o["setAttribute"+(arguments.length-1)+"f"](r,t,n,e,i);return this};r.fn.setAttributeInt=function(r,t,n,e,i){o["setAttribute"+(arguments.length-1)+"i"](r,t,n,e,i);return this};r.fn.setUniformFloat=function(r,t,n,e,i){o["setUniform"+(arguments.length-1)+"f"](r,t,n,e,i);return this};r.fn.setUniformInt=function(r,t,n,e,i){o["setUniform"+(arguments.length-1)+"i"](r,t,n,e,i);return this};r.fn.setUniformMatrix=function(r,t){var n={4:2,9:3,16:4}[t.length];o["setUniformMatrix"+n+"fv"](r,t);return this};};r.core=s;if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=r;}else {var P=window.image3D;r.noConflict=function(){if(window.image3D===r){window.image3D=P;}return r};window.image3D=r;}})();
   });
 
   /*!
@@ -1651,7 +1734,118 @@
   var shaderVertex = "\n\n    attribute vec4 a_position; // \u9876\u70B9\u5750\u6807\n    uniform mat4 u_matrix;     // \u53D8\u6362\u77E9\u9635\n    uniform vec3 u_LPosition;  // \u5149\u7684\u4F4D\u7F6E\n    attribute vec3 a_normal;\n\n    varying vec3 v_LDirection;\n    varying vec3 v_normal;\n\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n        // \u70B9\u5149\u6E90\u65B9\u5411\n        // \u9876\u70B9\u7684\u4F4D\u7F6E\u5E94\u8BE5\u4F7F\u7528\u8BA1\u7B97\u8FC7\u7684\n        v_LDirection = vec3(gl_Position) - u_LPosition;\n\n        v_normal = vec3(u_matrix * vec4(a_normal, 1));\n\n    }\n";
 
   // 片段着色器
-  var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(dot(LDirection, normal), 0.2);\n\n        gl_FragColor = u_color * u_LColor * dotValue;\n    }\n";
+  var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(abs(dot(LDirection, normal)), 0.4);\n\n        gl_FragColor = u_color * u_LColor * dotValue;\n    }\n";
+
+  var bar = (function (params, api) {
+    var data = params.data;
+    params.itemStyle = params.itemStyle || {};
+    var geometry = [];
+
+    for (var i = 0; i < data.length; i++) {
+      if (isArray(data[i])) {
+        for (var j = 0; j < data[i].length; j++) {
+          var smallWidth = 0.7 / data[i].length;
+          geometry.push({
+            type: "item",
+            name: "cuboid",
+            length: data[i][j],
+            start: params.itemStyle.align == 'middle' ? data[i][j] * 0.5 : 0,
+            index: i + 0.5 - data.length * 0.5 + (j - data[i].length * 0.5) * smallWidth,
+            size: smallWidth,
+            color: api.color(j)
+          });
+        }
+      } else {
+        geometry.push({
+          type: "item",
+          name: "cuboid",
+          length: data[i],
+          start: params.itemStyle.align == 'middle' ? data[i] * 0.5 : 0,
+          index: i + 0.5 - data.length * 0.5,
+          size: 0.7,
+          color: params.itemStyle.colors ? api.color(i) : api.color(0)
+        });
+      }
+    }
+
+    return {
+      geometry: geometry
+    };
+  });
+
+  var line = (function (params, api) {
+    var data = [];
+
+    if (isArray(params.data[0])) {
+      for (var i = 0; i < params.data[0].length; i++) {
+        var _data = [];
+
+        for (var j = 0; j < params.data.length; j++) {
+          _data.push(params.data[j][i]);
+        }
+
+        data.push(_data);
+      }
+    } else {
+      data.push(params.data);
+    }
+
+    var geometry = [];
+
+    for (var _j = 0; _j < data.length; _j++) {
+      var points = [];
+
+      for (var _i = 0; _i < data[_j].length; _i++) {
+        points.push([_i + 0.5 - data[_j].length * 0.5, data[_j][_i]]);
+      }
+
+      geometry.push({
+        type: "item",
+        name: "lines",
+        points: points,
+        color: api.color(_j)
+      });
+    }
+
+    return {
+      geometry: geometry
+    };
+  });
+
+  var candlestick = (function (params, api) {
+    var data = params.data;
+    var geometry = [];
+
+    for (var i = 0; i < data.length; i++) {
+      // 红涨绿跌
+      geometry.push({
+        type: "item",
+        name: "cuboid",
+        length: data[i][1] - data[i][0],
+        start: data[i][0],
+        index: i + 0.5 - data.length * 0.5,
+        size: 0.7,
+        color: data[i][0] > data[i][1] ? [0, 1, 0, 1] : [1, 0, 0, 1]
+      }); // 最值
+
+      geometry.push({
+        type: "item",
+        name: "lines",
+        points: [[i + 0.5 - data.length * 0.5, data[i][2]], [i + 0.5 - data.length * 0.5, data[i][3]]],
+        color: data[i][0] > data[i][1] ? [0, 1, 0, 1] : [1, 0, 0, 1]
+      });
+    }
+
+    return {
+      geometry: geometry
+    };
+  });
+
+  var charts = {
+    bar: bar,
+    line: line,
+    candlestick: candlestick
+  };
 
   var Puly = /*#__PURE__*/function () {
     // 主题
@@ -1688,11 +1882,14 @@
       this.painter = this.image3d.Painter();
       this.buffer = this.image3d.Buffer();
       this.camera = this.image3d.Camera({
-        size: 3
-      }).rotateBody(0.1, -1, 0, 0, 1, 0, 0); // 设置点光源的颜色和位置
+        size: 4,
+        // 默认的时候，Z轴承的方向是朝里的，这里进行了校对
+        // https://hai2007.gitee.io/image3d/index.html#/api?fixed=camera-set
+        proof: true
+      }).rotateBody(-0.5, 1, 0, 0).rotateBody(0.2, 0, 0, 1).rotateBody(0.5, -1, 1, -1); // 设置点光源的颜色和位置
 
-      this.image3d.setUniformFloat("u_LColor", 0.9, 0.9, 0.9, 1);
-      this.image3d.setUniformFloat("u_LPosition", -5, 5, -5); // 监听绘制区域大小改变
+      this.image3d.setUniformFloat("u_LColor", 1, 1, 1, 1);
+      this.image3d.setUniformFloat("u_LPosition", -5, 5, 5); // 监听绘制区域大小改变
 
       observeResize(el, function () {// todo
       }); // 鼠标键盘交互
@@ -1723,7 +1920,7 @@
         } // 滚轮控制
         else if (data.type == 'scale') {
           // 设置一个缩放上界
-          if (data.kind == 'enlarge' && rateScale >= 1.28) {
+          if (data.kind == 'enlarge' && rateScale >= 2) {
             return;
           }
 
@@ -1757,26 +1954,32 @@
           try {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var series = _step.value;
-              var result = Puly.charts[series.type]({
-                data: series.data || this.option.data || []
-              }, {
-                color: function color(index) {
-                  return Puly.theme.colors[index % Puly.theme.colors.length];
-                }
-              });
-
-              var _iterator2 = _createForOfIteratorHelper(result.geometry),
-                  _step2;
 
               try {
-                for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-                  var geometry = _step2.value;
-                  geometrys.push(geometry);
+                var result = Puly.charts[series.type]({
+                  data: series.data || this.option.data || [],
+                  itemStyle: series.itemStyle || {}
+                }, {
+                  color: function color(index) {
+                    return Puly.theme.colors[index % Puly.theme.colors.length];
+                  }
+                });
+
+                var _iterator2 = _createForOfIteratorHelper(result.geometry),
+                    _step2;
+
+                try {
+                  for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                    var geometry = _step2.value;
+                    geometrys.push(geometry);
+                  }
+                } catch (err) {
+                  _iterator2.e(err);
+                } finally {
+                  _iterator2.f();
                 }
-              } catch (err) {
-                _iterator2.e(err);
-              } finally {
-                _iterator2.f();
+              } catch (e) {
+                console.warn("[puly warn]Chart '" + series.type + "' not defined");
               }
             }
           } catch (err) {
@@ -1811,6 +2014,33 @@
           } finally {
             _iterator3.f();
           }
+
+          if (!('xAxis' in _this2.option) || isBoolean(_this2.option.xAxis.show) && _this2.option.xAxis.show) {
+            // 绘制x坐标轴
+            _this2.buffer.write(new Float32Array([-1.3, 0, 0, 0, 0, 1, 1.3, 0, 0, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1, 1.25, -0.02, 0.02, 0, 0, 1, 1.25, -0.02, -0.02, 0, 0, 1, 1.25, 0.02, -0.02, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+            _this2.image3d.setUniformFloat("u_color", 1, 0, 0, 1);
+
+            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
+          }
+
+          if (!('yAxis' in _this2.option) || isBoolean(_this2.option.yAxis.show) && _this2.option.yAxis.show) {
+            // 绘制y坐标轴
+            _this2.buffer.write(new Float32Array([0, -1.3, 0, 0, 0, 1, 0, 1.3, 0, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+            _this2.image3d.setUniformFloat("u_color", 0, 1, 0, 1);
+
+            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
+          }
+
+          if (!('zAxis' in _this2.option) || isBoolean(_this2.option.zAxis.show) && _this2.option.zAxis.show) {
+            // 绘制z坐标轴
+            _this2.buffer.write(new Float32Array([0, 0, -1.3, 0, 0, 1, 0, 0, 1.3, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1, -0.02, 0.02, 1.25, 0, 0, 1, -0.02, -0.02, 1.25, 0, 0, 1, 0.02, -0.02, 1.25, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+            _this2.image3d.setUniformFloat("u_color", 0, 0, 1, 1);
+
+            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
+          }
         };
 
         this.doDraw();
@@ -1833,12 +2063,21 @@
     }]);
 
     return Puly;
-  }(); // 对外暴露调用接口
+  }(); // 挂载内置图表
 
 
   _defineProperty(Puly, "charts", {});
 
   _defineProperty(Puly, "theme", void 0);
+
+  for (var key in charts) {
+    Puly.registerChart(key, charts[key]);
+  } // 设置好主题色
+
+
+  Puly.registerTheme({
+    "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+  }); // 对外暴露调用接口
 
   if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
     module.exports = Puly;

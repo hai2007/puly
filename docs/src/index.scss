@@ -1,3 +1,127 @@
-body{
+html {
+    font-size: 100px;
+}
+
+body {
+    font-size: .16rem;
     background-color: #2f3241;
+}
+
+div.doc-view {
+    &>header {
+        font-size: 26px;
+        padding: 30px 0;
+        font-weight: 800;
+    }
+
+    &>h2 {
+        font-size: 18px;
+        border-left: 2px solid blue;
+        padding: 5px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+    }
+
+    &>h4 {
+        color: red;
+    }
+
+    &>h5 {
+        padding-left: 10px;
+    }
+
+    .warn {
+        color: #030303;
+        font-weight: 800;
+        padding: 0 2px;
+        font-size: 12px;
+    }
+}
+
+.link {
+    margin: 0 5px;
+}
+
+// 导航菜单页面
+
+.nav-view {
+    white-space: nowrap;
+
+    &>div {
+        display: inline-block;
+        vertical-align: top;
+        white-space: normal;
+        height: calc(100vh - 60px);
+        overflow: auto;
+
+        &.menu {
+            width: 240px;
+            padding: 20px 0;
+
+            [active='no']>li>ul {
+                display: none;
+            }
+
+            [active='yes']>li {
+                &>h3 {
+                    border-left: 3px solid #a0db67;
+                }
+
+                &>ul {
+                    display: block;
+                }
+            }
+
+            // 标题
+            h3,
+            h4,
+            h5,
+            h6 {
+                padding-left: 7px;
+                line-height: 30px;
+            }
+
+            // 一级标题
+            h3 {
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 15px;
+            }
+
+            // 二级和三级标题
+            h4,
+            h5,
+            h6 {
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: 400;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+
+
+
+            &>ul {
+                &>li>ul {
+                    margin-left: 20px;
+                }
+
+                ul {
+                    margin-left: 10px;
+                }
+            }
+
+        }
+
+        &.view {
+            width: calc(100vw - 240px);
+
+            &>div {
+                width: 700px;
+                margin: auto;
+            }
+        }
+    }
 }
