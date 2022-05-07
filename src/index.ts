@@ -14,6 +14,8 @@ import { isBoolean } from '@hai2007/tool/type'
 import shaderVertex from './shader-vertex'
 import shaderFragment from './shader-fragment'
 
+import axisFactory from './axis/index'
+
 class Puly {
 
     private size: sizeType
@@ -165,71 +167,34 @@ class Puly {
         }
 
         let temp = calc(geometrys, this.option)
+
         this.doDraw = () => {
 
             // 传递照相机
             this.image3d.setUniformMatrix("u_matrix", this.camera.value())
 
+            /**
+             * 设计思想：
+             *
+             * 1.默认是直立方坐标系，当然，也可以设置球坐标系等，慢慢丰富
+             *
+             * 2.设置了坐标系以后，不同坐标系有不同的轴可以设置，默认都自动显示出来
+             * （坐标轴也可以提供设置项）
+             *
+             * 3.然后，绘制具体的图形
+             */
+
+            for (let aixsName of ["xAxis", "yAxis", "zAxis"]) {
+                if (!(aixsName in this.option) || (isBoolean(this.option[aixsName].show) && this.option[aixsName].show)) {
+                    temp.geometry.push(...axisFactory[aixsName]())
+                }
+            }
+
             for (let geometry of temp.geometry) {
                 let data = geometry.data
-
                 this.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
                 this.image3d.setUniformFloat("u_color", geometry.color[0], geometry.color[1], geometry.color[2], geometry.color[3])
                 this.painter["draw" + data.methods](0, data.length)
-            }
-
-            if (!('xAxis' in this.option) || (isBoolean(this.option.xAxis.show) && this.option.xAxis.show)) {
-
-                // 绘制x坐标轴
-                this.buffer.write(new Float32Array([
-                    -1.3, 0, 0, 0, 0, 1, 1.3, 0, 0, 0, 0, 1,
-                    1.25, 0.02, 0.02, 0, 0, 1,
-                    1.25, -0.02, 0.02, 0, 0, 1,
-                    1.25, -0.02, -0.02, 0, 0, 1,
-                    1.25, 0.02, -0.02, 0, 0, 1,
-                    1.25, 0.02, 0.02, 0, 0, 1,
-                ])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
-
-                this.image3d.setUniformFloat("u_color", 1, 0, 0, 1)
-
-                this.painter.drawLine(0, 2).drawFanTriangle(1, 6)
-
-            }
-
-            if (!('yAxis' in this.option) || (isBoolean(this.option.yAxis.show) && this.option.yAxis.show)) {
-
-                // 绘制y坐标轴
-                this.buffer.write(new Float32Array([
-                    0, -1.3, 0, 0, 0, 1, 0, 1.3, 0, 0, 0, 1,
-                    0.02, 1.25, 0.02, 0, 0, 1,
-                    -0.02, 1.25, 0.02, 0, 0, 1,
-                    -0.02, 1.25, -0.02, 0, 0, 1,
-                    0.02, 1.25, -0.02, 0, 0, 1,
-                    0.02, 1.25, 0.02, 0, 0, 1,
-                ])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
-
-                this.image3d.setUniformFloat("u_color", 0, 1, 0, 1)
-
-                this.painter.drawLine(0, 2).drawFanTriangle(1, 6)
-
-            }
-
-            if (!('zAxis' in this.option) || (isBoolean(this.option.zAxis.show) && this.option.zAxis.show)) {
-
-                // 绘制z坐标轴
-                this.buffer.write(new Float32Array([
-                    0, 0, -1.3, 0, 0, 1, 0, 0, 1.3, 0, 0, 1,
-                    0.02, 0.02, 1.25, 0, 0, 1,
-                    -0.02, 0.02, 1.25, 0, 0, 1,
-                    -0.02, -0.02, 1.25, 0, 0, 1,
-                    0.02, -0.02, 1.25, 0, 0, 1,
-                    0.02, 0.02, 1.25, 0, 0, 1,
-                ])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
-
-                this.image3d.setUniformFloat("u_color", 0, 0, 1, 1)
-
-                this.painter.drawLine(0, 2).drawFanTriangle(1, 6)
-
             }
         }
 
@@ -247,7 +212,7 @@ for (let key in charts) {
 
 // 设置好主题色
 Puly.registerTheme({
-    "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+    "colors": ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc']
 });
 
 // 对外暴露调用接口

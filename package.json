@@ -1,6 +1,6 @@
 {
   "name": "puly",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "一个简单易用的3D图表，像ECharts一样可以快速上手，配置化生成，并支持个性化自定义扩展。",
   "main": "./dist/puly.min.js",
   "typings": "types/index.d.ts",

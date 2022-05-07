@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.2.0
+ * version 1.2.1
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Fri May 06 2022 22:22:11 GMT+0800 (GMT+08:00)
+ * Date:Sat May 07 2022 19:30:30 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1736,6 +1736,66 @@
   // 片段着色器
   var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(abs(dot(LDirection, normal)), 0.4);\n\n        gl_FragColor = u_color * u_LColor * dotValue;\n    }\n";
 
+  var xAxis = (function () {
+    return [{
+      data: {
+        length: 2,
+        methods: "Line",
+        points: [-1.3, 0, 0, 0, 0, 1, 1.3, 0, 0, 0, 0, 1]
+      },
+      color: [1, 0, 0, 1]
+    }, {
+      data: {
+        length: 6,
+        methods: "FanTriangle",
+        points: [1.3, 0, 0, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1, 1.25, -0.02, 0.02, 0, 0, 1, 1.25, -0.02, -0.02, 0, 0, 1, 1.25, 0.02, -0.02, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1]
+      },
+      color: [1, 0, 0, 1]
+    }];
+  });
+
+  var yAxis = (function () {
+    return [{
+      data: {
+        length: 2,
+        methods: "Line",
+        points: [0, -1.3, 0, 0, 0, 1, 0, 1.3, 0, 0, 0, 1]
+      },
+      color: [0, 1, 0, 1]
+    }, {
+      data: {
+        length: 6,
+        methods: "FanTriangle",
+        points: [0, 1.3, 0, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1]
+      },
+      color: [0, 1, 0, 1]
+    }];
+  });
+
+  var zAxis = (function () {
+    return [{
+      data: {
+        length: 2,
+        methods: "Line",
+        points: [0, 0, -1.3, 0, 0, 1, 0, 0, 1.3, 0, 0, 1]
+      },
+      color: [0, 0, 1, 1]
+    }, {
+      data: {
+        length: 6,
+        methods: "FanTriangle",
+        points: [0, 0, 1.3, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1, -0.02, 0.02, 1.25, 0, 0, 1, -0.02, -0.02, 1.25, 0, 0, 1, 0.02, -0.02, 1.25, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1]
+      },
+      color: [0, 0, 1, 1]
+    }];
+  });
+
+  var axisFactory = {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    zAxis: zAxis
+  };
+
   var bar = (function (params, api) {
     var data = params.data;
     params.itemStyle = params.itemStyle || {};
@@ -1994,6 +2054,27 @@
         this.doDraw = function () {
           // 传递照相机
           _this2.image3d.setUniformMatrix("u_matrix", _this2.camera.value());
+          /**
+           * 设计思想：
+           *
+           * 1.默认是直立方坐标系，当然，也可以设置球坐标系等，慢慢丰富
+           *
+           * 2.设置了坐标系以后，不同坐标系有不同的轴可以设置，默认都自动显示出来
+           * （坐标轴也可以提供设置项）
+           *
+           * 3.然后，绘制具体的图形
+           */
+
+
+          for (var _i = 0, _arr = ["xAxis", "yAxis", "zAxis"]; _i < _arr.length; _i++) {
+            var aixsName = _arr[_i];
+
+            if (!(aixsName in _this2.option) || isBoolean(_this2.option[aixsName].show) && _this2.option[aixsName].show) {
+              var _temp$geometry;
+
+              (_temp$geometry = temp.geometry).push.apply(_temp$geometry, _toConsumableArray(axisFactory[aixsName]()));
+            }
+          }
 
           var _iterator3 = _createForOfIteratorHelper(temp.geometry),
               _step3;
@@ -2013,33 +2094,6 @@
             _iterator3.e(err);
           } finally {
             _iterator3.f();
-          }
-
-          if (!('xAxis' in _this2.option) || isBoolean(_this2.option.xAxis.show) && _this2.option.xAxis.show) {
-            // 绘制x坐标轴
-            _this2.buffer.write(new Float32Array([-1.3, 0, 0, 0, 0, 1, 1.3, 0, 0, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1, 1.25, -0.02, 0.02, 0, 0, 1, 1.25, -0.02, -0.02, 0, 0, 1, 1.25, 0.02, -0.02, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
-
-            _this2.image3d.setUniformFloat("u_color", 1, 0, 0, 1);
-
-            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
-          }
-
-          if (!('yAxis' in _this2.option) || isBoolean(_this2.option.yAxis.show) && _this2.option.yAxis.show) {
-            // 绘制y坐标轴
-            _this2.buffer.write(new Float32Array([0, -1.3, 0, 0, 0, 1, 0, 1.3, 0, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
-
-            _this2.image3d.setUniformFloat("u_color", 0, 1, 0, 1);
-
-            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
-          }
-
-          if (!('zAxis' in _this2.option) || isBoolean(_this2.option.zAxis.show) && _this2.option.zAxis.show) {
-            // 绘制z坐标轴
-            _this2.buffer.write(new Float32Array([0, 0, -1.3, 0, 0, 1, 0, 0, 1.3, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1, -0.02, 0.02, 1.25, 0, 0, 1, -0.02, -0.02, 1.25, 0, 0, 1, 0.02, -0.02, 1.25, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
-
-            _this2.image3d.setUniformFloat("u_color", 0, 0, 1, 1);
-
-            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
           }
         };
 
@@ -2076,7 +2130,7 @@
 
 
   Puly.registerTheme({
-    "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+    "colors": ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc']
   }); // 对外暴露调用接口
 
   if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
