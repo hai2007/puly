@@ -1,15 +1,15 @@
 /*!
- * puly - 基于Image3D.js开发，底层依赖webgl实现，通过配置和简单的方法调用，可以快速实现三维数据可视化和VR效果等。
+ * puly - 一个简单易用的3D图表，像ECharts一样可以快速上手，配置化生成，并支持个性化自定义扩展。
  * git+https://github.com/hai2007/puly.git
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 0.1.0
+ * version 1.2.0
  *
- * Copyright (c) 2021 hai2007 走一步，再走一步。
+ * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Thu Jan 06 2022 09:18:06 GMT+0800 (中国标准时间)
+ * Date:Fri May 06 2022 22:22:11 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -155,719 +155,6 @@
         }
       }
     };
-  }
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var image3DCore = createCommonjsModule(function (module) {
-
-  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-  (function () {
-
-      /**
-       * 着色器一些公共的方法
-       * --------------------------------------------
-       * 主要是和生成特定着色器无关的方法
-       * 着色器分为两类：顶点着色器 + 片段着色器
-       * 前者用于定义一个点的特性，比如位置，大小，颜色等
-       * 后者用于针对每个片段（可以理解为像素）进行处理
-       *
-       * 着色器采用的语言是：GLSL ES语言
-       */
-
-      // 把着色器字符串加载成着色器对象
-
-      var loadShader = function loadShader(gl, type, source) {
-          // 创建着色器对象
-          var shader = gl.createShader(type);
-          if (shader == null) throw new Error('Unable to create shader!');
-          // 绑定资源
-          gl.shaderSource(shader, source);
-          // 编译着色器
-          gl.compileShader(shader);
-          // 检测着色器编译是否成功
-          if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error('Failed to compile shader:' + gl.getShaderInfoLog(shader));
-          return shader;
-      };
-
-      // 初始化着色器
-      var useShader = function useShader(gl, vshaderSource, fshaderSource) {
-          // 分别加载顶点着色器对象和片段着色器对象
-          var vertexShader = loadShader(gl, gl.VERTEX_SHADER, vshaderSource),
-              fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fshaderSource);
-          // 创建一个着色器程序
-          var glProgram = gl.createProgram();
-          // 把前面创建的两个着色器对象添加到着色器程序中
-          gl.attachShader(glProgram, vertexShader);
-          gl.attachShader(glProgram, fragmentShader);
-          // 把着色器程序链接成一个完整的程序
-          gl.linkProgram(glProgram);
-          // 检测着色器程序链接是否成功
-          if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) throw new Error('Failed to link program: ' + gl.getProgramInfoLog(glProgram));
-          // 使用这个完整的程序
-          gl.useProgram(glProgram);
-          return glProgram;
-      };
-
-      /**
-       * 缓冲区核心方法
-       * --------------------------------------------
-       * 缓冲区分为两种：
-       *  1.缓冲区中保存了包含顶点的数据
-       *  2.缓冲区保存了包含顶点的索引值
-       *
-       */
-
-      // 获取一个新的缓冲区
-      // isElement默认false，创建第一种缓冲区，为true创建第二种
-      var newBuffer = function newBuffer(gl, isElement) {
-          var buffer = gl.createBuffer(),
-              TYPE = isElement ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
-          // 把缓冲区对象绑定到目标
-          gl.bindBuffer(TYPE, buffer);
-          return buffer;
-      };
-
-      // 数据写入缓冲区
-      // data是一个类型化数组，表示写入的数据
-      // usage表示程序如何使用存储在缓冲区的数据
-      var writeBuffer = function writeBuffer(gl, data, usage, isElement) {
-          var TYPE = isElement ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
-          gl.bufferData(TYPE, data, usage);
-      };
-
-      // 使用缓冲区数据
-      // location指定待分配的attribute变量的存储位置
-      // size每个分量个数
-      // type数据类型，应该是以下的某个：
-      //      gl.UNSIGNED_BYTE    Uint8Array
-      //      gl.SHORT            Int16Array
-      //      gl.UNSIGNED_SHORT   Uint16Array
-      //      gl.INT              Int32Array
-      //      gl.UNSIGNED_INT     Uint32Array
-      //      gl.FLOAT            Float32Array
-      // stride相邻两个数据项的字节数
-      // offset数据的起点字节位置
-      // normalized是否把非浮点型的数据归一化到[0,1]或[-1,1]区间
-      var useBuffer = function useBuffer(gl, location, size, type, stride, offset, normalized) {
-          // 把缓冲区对象分配给目标变量
-          gl.vertexAttribPointer(location, size, type, normalized || false, stride || 0, offset || 0);
-          // 连接目标对象和缓冲区对象
-          gl.enableVertexAttribArray(location);
-      };
-
-      /**
-       * 纹理方法
-       * --------------------------------------------
-       * 在绘制的多边形上贴图
-       * 丰富效果
-       */
-
-      // 初始化一个纹理对象
-      // type有gl.TEXTURE_2D代表二维纹理，gl.TEXTURE_CUBE_MAP 立方体纹理等
-      var initTexture = function initTexture(gl, type, unit, _type_) {
-          // 创建纹理对象
-          var texture = gl.createTexture();
-
-          if (_type_ == '2d') {
-              unit = unit || 0;
-              // 开启纹理单元，unit表示开启的编号
-              gl.activeTexture(gl['TEXTURE' + unit]);
-          }
-
-          // 绑定纹理对象到目标上
-          gl.bindTexture(type, texture);
-          return texture;
-      };
-
-      // 链接资源图片
-      // level默认传入0即可，和金字塔纹理有关
-      // format表示图像的内部格式：
-      //      gl.RGB(红绿蓝)
-      //      gl.RGBA(红绿蓝透明度)
-      //      gl.ALPHA(0.0,0.0,0.0,透明度)
-      //      gl.LUMINANCE(L、L、L、1L:流明)
-      //      gl.LUMINANCE_ALPHA(L、L、L,透明度)
-      // textureType表示纹理数据的格式：
-      //      gl.UNSIGNED_BYTE: 表示无符号整形，每一个颜色分量占据1字节
-      //      gl.UNSIGNED_SHORT_5_6_5: 表示RGB，每一个分量分别占据占据5, 6, 5比特
-      //      gl.UNSIGNED_SHORT_4_4_4_4: 表示RGBA，每一个分量分别占据占据4, 4, 4, 4比特
-      //      gl.UNSIGNED_SHORT_5_5_5_1: 表示RGBA，每一个分量分别占据占据5比特，A分量占据1比特
-      var linkImage = function linkImage(gl, type, level, format, textureType, image) {
-          format = {
-              "rgb": gl.RGB,
-              "rgba": gl.RGBA,
-              "alpha": gl.ALPHA
-          }[format] || gl.RGBA;
-
-          gl.texImage2D(type, level || 0, format, format, {
-
-              // 目前一律采用默认值，先不对外提供修改权限
-
-          }[textureType] || gl.UNSIGNED_BYTE, image);
-      };
-
-      var linkCube = function linkCube(gl, type, level, format, textureType, images, width, height, texture) {
-          format = {
-              "rgb": gl.RGB,
-              "rgba": gl.RGBA,
-              "alpha": gl.ALPHA
-          }[format] || gl.RGBA;
-
-          level = level || 0;
-
-          textureType = {
-
-              // 目前一律采用默认值，先不对外提供修改权限
-
-          }[textureType] || gl.UNSIGNED_BYTE;
-
-          var types = [gl.TEXTURE_CUBE_MAP_POSITIVE_X, //右
-          gl.TEXTURE_CUBE_MAP_NEGATIVE_X, //左
-          gl.TEXTURE_CUBE_MAP_POSITIVE_Y, //上
-          gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, //下
-          gl.TEXTURE_CUBE_MAP_POSITIVE_Z, //后
-          gl.TEXTURE_CUBE_MAP_NEGATIVE_Z //前
-          ],
-              i = void 0,
-              target = void 0;
-
-          for (i = 0; i < types.length; i++) {
-              target = types[i];
-              gl.texImage2D(target, level, format, width, height, 0, format, textureType, null);
-              gl.bindTexture(type, texture);
-              gl.texImage2D(target, level, format, format, textureType, images[i]);
-          }
-
-          gl.generateMipmap(type);
-      };
-
-      function value(gl) {
-          return {
-
-              /**
-               * attribue
-               * ----------------------------------------
-               */
-
-              // 浮点数
-              setAttribute1f: function setAttribute1f(name, v0) {
-                  // 获取存储位置
-                  var location = gl.getAttribLocation(gl.program, name);
-                  // 传递数据给变量
-                  gl.vertexAttrib1f(location, v0);
-              },
-              setAttribute2f: function setAttribute2f(name, v0, v1) {
-                  var location = gl.getAttribLocation(gl.program, name);
-                  gl.vertexAttrib2f(location, v0, v1);
-              },
-              setAttribute3f: function setAttribute3f(name, v0, v1, v2) {
-                  var location = gl.getAttribLocation(gl.program, name);
-                  gl.vertexAttrib3f(location, v0, v1, v2);
-              },
-              setAttribute4f: function setAttribute4f(name, v0, v1, v2, v3) {
-                  var location = gl.getAttribLocation(gl.program, name);
-                  gl.vertexAttrib4f(location, v0, v1, v2, v3);
-              },
-
-
-              // 整数
-              setAttribute1i: function setAttribute1i(name, v0) {
-                  // 获取存储位置
-                  var location = gl.getAttribLocation(gl.program, name);
-                  // 传递数据给变量
-                  gl.vertexAttrib1i(location, v0);
-              },
-              setAttribute2i: function setAttribute2i(name, v0, v1) {
-                  var location = gl.getAttribLocation(gl.program, name);
-                  gl.vertexAttrib2i(location, v0, v1);
-              },
-              setAttribute3i: function setAttribute3i(name, v0, v1, v2) {
-                  var location = gl.getAttribLocation(gl.program, name);
-                  gl.vertexAttrib3i(location, v0, v1, v2);
-              },
-              setAttribute4i: function setAttribute4i(name, v0, v1, v2, v3) {
-                  var location = gl.getAttribLocation(gl.program, name);
-                  gl.vertexAttrib4i(location, v0, v1, v2, v3);
-              },
-
-
-              /**
-              * uniform
-              * ----------------------------------------
-              */
-
-              // 浮点数
-              setUniform1f: function setUniform1f(name, v0) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform1f(location, v0);
-              },
-              setUniform2f: function setUniform2f(name, v0, v1) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform2f(location, v0, v1);
-              },
-              setUniform3f: function setUniform3f(name, v0, v1, v2) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform3f(location, v0, v1, v2);
-              },
-              setUniform4f: function setUniform4f(name, v0, v1, v2, v3) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform4f(location, v0, v1, v2, v3);
-              },
-
-
-              // 整数
-              setUniform1i: function setUniform1i(name, v0) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform1i(location, v0);
-              },
-              setUniform2i: function setUniform2i(name, v0, v1) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform2i(location, v0, v1);
-              },
-              setUniform3i: function setUniform3i(name, v0, v1, v2) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform3i(location, v0, v1, v2);
-              },
-              setUniform4i: function setUniform4i(name, v0, v1, v2, v3) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniform4i(location, v0, v1, v2, v3);
-              },
-
-
-              // 矩阵
-              setUniformMatrix2fv: function setUniformMatrix2fv(name, value) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniformMatrix2fv(location, false, value);
-              },
-              setUniformMatrix3fv: function setUniformMatrix3fv(name, value) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniformMatrix3fv(location, false, value);
-              },
-              setUniformMatrix4fv: function setUniformMatrix4fv(name, value) {
-                  var location = gl.getUniformLocation(gl.program, name);
-                  gl.uniformMatrix4fv(location, false, value);
-              }
-          };
-      }
-
-      function _painter(gl) {
-
-          var typeMap = {
-              "byte": gl.UNSIGNED_BYTE,
-              "short": gl.UNSIGNED_SHORT
-          };
-
-          return {
-
-              // 开启深度计算
-              openDeep: function openDeep() {
-                  gl.enable(gl.DEPTH_TEST);
-                  return this;
-              },
-
-
-              // 绘制点
-              points: function points(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.POINTS, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.POINTS, first, count);
-                  }
-                  return this;
-              },
-
-
-              // 绘制直线
-              lines: function lines(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.LINES, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.LINES, first, count);
-                  }
-                  return this;
-              },
-
-
-              // 绘制连续直线
-              stripLines: function stripLines(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.LINE_STRIP, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.LINE_STRIP, first, count);
-                  }
-                  return this;
-              },
-
-
-              // 绘制闭合直线
-              loopLines: function loopLines(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.LINE_LOOP, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.LINE_LOOP, first, count);
-                  }
-                  return this;
-              },
-
-
-              // 绘制三角形
-              triangles: function triangles(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.TRIANGLES, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.TRIANGLES, first, count);
-                  }
-                  return this;
-              },
-
-
-              // 绘制共有边三角形
-              stripTriangles: function stripTriangles(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.TRIANGLE_STRIP, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.TRIANGLE_STRIP, first, count);
-                  }
-                  return this;
-              },
-
-
-              // 绘制旋转围绕三角形
-              fanTriangles: function fanTriangles(first, count, type) {
-                  if (type) {
-                      gl.drawElements(gl.TRIANGLE_FAN, count, typeMap[type], first);
-                  } else {
-                      gl.drawArrays(gl.TRIANGLE_FAN, first, count);
-                  }
-                  return this;
-              }
-          };
-      }
-
-      // 获取webgl上下文
-      var getCanvasWebgl = function getCanvasWebgl(node, opts) {
-          var names = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"],
-              context = null,
-              i = void 0;
-          for (i = 0; i < names.length; i++) {
-              try {
-                  context = node.getContext(names[i], opts);
-              } catch (e) {}
-              if (context) break;
-          }
-          if (!context) throw new Error('Non canvas or browser does not support webgl.');
-          return context;
-      };
-
-      // 绘图核心对象
-      function image3DCore(node, opts) {
-          var gl = getCanvasWebgl(node, opts),
-              glObj = {
-
-              "_gl_": gl,
-
-              // 画笔
-              "painter": function painter() {
-                  return _painter(gl);
-              },
-
-              // 启用着色器
-              "shader": function shader(vshaderSource, fshaderSource) {
-                  gl.program = useShader(gl, vshaderSource, fshaderSource);
-                  return glObj;
-              },
-
-              // 缓冲区
-              "buffer": function buffer(isElement) {
-                  // 创建缓冲区
-                  newBuffer(gl, isElement);
-                  var bufferData = void 0,
-                      bufferObj = {
-                      // 写入数据
-                      "write": function write(data, usage) {
-                          usage = usage || gl.STATIC_DRAW;
-                          writeBuffer(gl, data, usage, isElement);
-                          bufferData = data;
-                          return bufferObj;
-                      },
-                      // 分配使用
-                      "use": function use(location, size, stride, offset, type, normalized) {
-                          var fsize = bufferData.BYTES_PER_ELEMENT;
-                          if (typeof location == 'string') location = gl.getAttribLocation(gl.program, location);
-                          stride = stride || 0;
-                          offset = offset || 0;
-                          type = type || gl.FLOAT;
-                          useBuffer(gl, location, size, type, stride * fsize, offset * fsize, normalized);
-                          return bufferObj;
-                      }
-                  };
-                  return bufferObj;
-              },
-
-              // 纹理
-              "texture": function texture(_type_, unit) {
-                  var type = {
-                      "2d": gl.TEXTURE_2D, /*二维纹理*/
-                      "cube": gl.TEXTURE_CUBE_MAP /*立方体纹理*/
-                  }[_type_];
-
-                  // 创建纹理
-                  var texture = initTexture(gl, type, unit, _type_);
-
-                  // 配置纹理（默认配置）
-                  gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                  gl.texParameteri(type, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                  gl.texParameteri(type, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-                  var textureObj = {
-                      // 链接图片资源
-                      "useImage": function useImage(image, level, format, textureType) {
-                          linkImage(gl, type, level, format, textureType, image);
-                          return textureObj;
-                      },
-                      // 链接多张图片
-                      "useCube": function useCube(images, width, height, level, format, textureType) {
-                          linkCube(gl, type, level, format, textureType, images, width, height, texture);
-                      }
-                  };
-                  return textureObj;
-              }
-
-          };
-
-          // attribue和uniform数据设置
-          var valueMethods = value(gl);
-          for (var key in valueMethods) {
-              glObj[key] = valueMethods[key];
-          }
-
-          /**
-           * gl.viewport告诉WebGL如何将裁剪空间（-1 到 +1）中的点转换到像素空间
-           * 当你第一次创建WebGL上下文的时候WebGL会设置视域大小和画布大小匹配
-           * 但是在那之后就需要你自己设置（当你改变画布大小就需要告诉WebGL新的视域设置）
-           * 为了避免麻烦，我们每次都主动调用一下
-           */
-          gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-          return glObj;
-      }
-
-      if (( _typeof(module)) === "object" && _typeof(module.exports) === "object") {
-          module.exports = image3DCore;
-      } else {
-          var
-          // 保存之前的image3DCore，防止直接覆盖
-          _image3DCore = window.image3DCore;
-
-          image3D.noConflict = function () {
-
-              // 如果当前的$$是被最新的image3DCore覆盖的
-              // 恢复之前的
-              if (window.image3DCore === image3DCore) {
-                  window.image3DCore = _image3DCore;
-              }
-
-              // 返回当前image3DCore
-              // 因为调用这个方法以后
-              // 全局window下的image3DCore和$$是什么
-              // 已经不一定了
-              return image3DCore;
-          };
-
-          // 挂载对象到根
-          window.image3DCore = image3DCore;
-      }
-  })();
-  });
-
-  /**
-   * 在(a,b,c)方向位移d
-   */
-  function _move (d, a, b, c) {
-      c = c || 0;
-      var sqrt = Math.sqrt(a * a + b * b + c * c);
-      return [
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          a * d / sqrt, b * d / sqrt, c * d / sqrt, 1
-      ];
-  }
-
-  /**
-   * 围绕0Z轴旋转
-   * 其它的旋转可以借助transform实现
-   * 旋转角度单位采用弧度制
-   */
-  function _rotate (deg) {
-      var sin = Math.sin(deg),
-          cos = Math.cos(deg);
-      return [
-          cos, sin, 0, 0,
-          -sin, cos, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1
-      ];
-  }
-
-  /**
-   * 围绕圆心x、y和z分别缩放xTimes, yTimes和zTimes倍
-   */
-  function _scale (xTimes, yTimes, zTimes, cx, cy, cz) {
-      cx = cx || 0; cy = cy || 0; cz = cz || 0;
-      return [
-          xTimes, 0, 0, 0,
-          0, yTimes, 0, 0,
-          0, 0, zTimes, 0,
-          cx - cx * xTimes, cy - cy * yTimes, cz - cz * zTimes, 1
-      ];
-  }
-
-  /**
-   * 针对任意射线(a1,b1,c1)->(a2,b2,c2)
-   * 计算出二个变换矩阵
-   * 分别为：任意射线变成OZ轴变换矩阵 + OZ轴变回原来的射线的变换矩阵
-   */
-  function _transform (a1, b1, c1, a2, b2, c2) {
-
-      if (typeof a1 === 'number' && typeof b1 === 'number') {
-
-          // 如果设置二个点
-          // 表示二维上围绕某个点旋转
-          if (typeof c1 !== 'number') {
-              c1 = 0; a2 = a1; b2 = b1; c2 = 1;
-          }
-          // 只设置三个点(设置不足六个点都认为只设置了三个点)
-          // 表示围绕从原点出发的射线旋转
-          else if (typeof a2 !== 'number' || typeof b2 !== 'number' || typeof c2 !== 'number') {
-              a2 = a1; b2 = b1; c2 = c1; a1 = 0; b1 = 0; c1 = 0;
-          }
-
-          if (a1 == a2 && b1 == b2 && c1 == c2) throw new Error('It\'s not a legitimate ray!');
-
-          var sqrt1 = Math.sqrt((a2 - a1) * (a2 - a1) + (b2 - b1) * (b2 - b1)),
-              cos1 = sqrt1 != 0 ? (b2 - b1) / sqrt1 : 1,
-              sin1 = sqrt1 != 0 ? (a2 - a1) / sqrt1 : 0,
-
-              b = (a2 - a1) * sin1 + (b2 - b1) * cos1,
-              c = c2 - c1,
-
-              sqrt2 = Math.sqrt(b * b + c * c),
-              cos2 = sqrt2 != 0 ? c / sqrt2 : 1,
-              sin2 = sqrt2 != 0 ? b / sqrt2 : 0;
-
-          return [
-
-              // 任意射线变成OZ轴变换矩阵
-              [
-                  cos1, cos2 * sin1, sin1 * sin2, 0,
-                  -sin1, cos1 * cos2, cos1 * sin2, 0,
-                  0, -sin2, cos2, 0,
-                  b1 * sin1 - a1 * cos1, c1 * sin2 - a1 * sin1 * cos2 - b1 * cos1 * cos2, -a1 * sin1 * sin2 - b1 * cos1 * sin2 - c1 * cos2, 1
-              ],
-
-              // OZ轴变回原来的射线的变换矩阵
-              [
-                  cos1, -sin1, 0, 0,
-                  cos2 * sin1, cos2 * cos1, -sin2, 0,
-                  sin1 * sin2, cos1 * sin2, cos2, 0,
-                  a1, b1, c1, 1
-              ]
-
-          ];
-      } else {
-          throw new Error('a1 and b1 is required!');
-      }
-  }
-
-  // 二个4x4矩阵相乘
-  // 或矩阵和齐次坐标相乘
-  var _multiply = function (matrix4, param) {
-      var newParam = [];
-      for (var i = 0; i < 4; i++)
-          for (var j = 0; j < param.length / 4; j++)
-              newParam[j * 4 + i] =
-                  matrix4[i] * param[j * 4] +
-                  matrix4[i + 4] * param[j * 4 + 1] +
-                  matrix4[i + 8] * param[j * 4 + 2] +
-                  matrix4[i + 12] * param[j * 4 + 3];
-      return newParam;
-  };
-
-  /*!
-   * 💡 - 列主序存储的4x4矩阵
-   * https://github.com/hai2007/tool.js/blob/master/Matrix4.js
-   *
-   * author hai2007 < https://hai2007.gitee.io/sweethome >
-   *
-   * Copyright (c) 2020-present hai2007 走一步，再走一步。
-   * Released under the MIT license
-   */
-
-
-  function Matrix4 (initMatrix4) {
-
-      var matrix4 = initMatrix4 || [
-          1, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 1, 0,
-          0, 0, 0, 1
-      ];
-
-      var matrix4Obj = {
-
-          // 移动
-          "move": function (dis, a, b, c) {
-              matrix4 = _multiply(_move(dis, a, b, c), matrix4);
-              return matrix4Obj;
-          },
-
-          // 旋转
-          "rotate": function (deg, a1, b1, c1, a2, b2, c2) {
-              var matrix4s = _transform(a1, b1, c1, a2, b2, c2);
-              matrix4 = _multiply(_multiply(_multiply(matrix4s[1], _rotate(deg)), matrix4s[0]), matrix4);
-              return matrix4Obj;
-          },
-
-          // 缩放
-          "scale": function (xTimes, yTimes, zTimes, cx, cy, cz) {
-              matrix4 = _multiply(_scale(xTimes, yTimes, zTimes, cx, cy, cz), matrix4);
-              return matrix4Obj;
-          },
-
-          // 乘法
-          // 可以传入一个矩阵(matrix4,flag)
-          "multiply": function (newMatrix4, flag) {
-              matrix4 = flag ? _multiply(matrix4, newMatrix4) : _multiply(newMatrix4, matrix4);
-              return matrix4Obj;
-          },
-
-          // 对一个坐标应用变换
-          // 齐次坐标(x,y,z,w)
-          "use": function (x, y, z, w) {
-              // w为0表示点位于无穷远处，忽略
-              z = z || 0; w = w || 1;
-              var temp = _multiply(matrix4, [x, y, z, w]);
-              temp[0] = +temp[0].toFixed(7);
-              temp[1] = +temp[1].toFixed(7);
-              temp[2] = +temp[2].toFixed(7);
-              temp[3] = +temp[3].toFixed(7);
-              return temp;
-          },
-
-          // 矩阵的值
-          "value": function () {
-              return matrix4;
-          }
-
-      };
-
-      return matrix4Obj;
-
   }
 
   /*!
@@ -1175,6 +462,59 @@
 
   };
 
+  var _support_ = true;
+  function observeResize (el, doback) {
+    var observer = null;
+    var _hadWilldo_ = false;
+    var _hadNouse_ = false;
+
+    var doit = function doit() {
+      // 如果前置任务都完成了
+      if (!_hadWilldo_) {
+        _hadWilldo_ = true; // 既然前置任务已经没有了，那么就可以更新了？
+        // 不是的，可能非常短的时间里，后续有改变
+        // 因此延迟一点点来看看后续有没有改变
+        // 如果改变了，就再延迟看看
+
+        var interval = window.setInterval(function () {
+          // 判断当前是否可以立刻更新
+          if (!_hadNouse_) {
+            window.clearInterval(interval);
+            _hadWilldo_ = false;
+            doback();
+          }
+
+          _hadNouse_ = false;
+        }, 100);
+      } else {
+        _hadNouse_ = true;
+      }
+    };
+
+    try {
+      observer = new ResizeObserver(doit);
+      observer.observe(el);
+    } catch (e) {
+      // 如果浏览器不支持此接口
+      if (_support_) {
+        console.error('ResizeObserver undefined!'); // 不支持的话，提示一次就可以了
+
+        _support_ = false;
+      } // 使用resize进行退化支持
+
+
+      doit();
+      window.addEventListener('resize', doit, false);
+    }
+
+    return function () {
+      if (observer) {
+        // 解除对画布大小改变的监听
+        observer.disconnect();
+      }
+    };
+  }
+
   var REGEXP = {
 
       // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
@@ -1215,6 +555,732 @@
       return [+rgbaArray[0], +rgbaArray[1], +rgbaArray[2], rgbaArray[3] == undefined ? 1 : +rgbaArray[3]];
   }
 
+  /**
+   * 判断一个值是不是Object。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是Object返回true，否则返回false
+   */
+  function _isObject (value) {
+      var type = typeof value;
+      return value != null && (type === 'object' || type === 'function');
+  }
+
+  var toString = Object.prototype.toString;
+
+  /**
+   * 获取一个值的类型字符串[object type]
+   *
+   * @param {*} value 需要返回类型的值
+   * @returns {string} 返回类型字符串
+   */
+  function getType (value) {
+      if (value == null) {
+          return value === undefined ? '[object Undefined]' : '[object Null]';
+      }
+      return toString.call(value);
+  }
+
+  /**
+   * 判断一个值是不是Boolean。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是Boolean返回true，否则返回false
+   */
+  function _isBoolean (value) {
+      return value === true || value === false ||
+          (value !== null && typeof value === 'object' && getType(value) === '[object Boolean]');
+  }
+
+  /**
+   * 判断一个值是不是String。
+   *
+   * @param {*} value 需要判断类型的值
+   * @returns {boolean} 如果是String返回true，否则返回false
+   */
+  function _isString (value) {
+      var type = typeof value;
+      return type === 'string' || (type === 'object' && value != null && !Array.isArray(value) && getType(value) === '[object String]');
+  }
+
+  /*!
+   * 💡 - 值类型判断方法
+   * https://github.com/hai2007/tool.js/blob/master/type.js
+   *
+   * author hai2007 < https://hai2007.gitee.io/sweethome >
+   *
+   * Copyright (c) 2020-present hai2007 走一步，再走一步。
+   * Released under the MIT license
+   */
+
+  var isObject = _isObject;
+  var isBoolean = _isBoolean;
+  var isString = _isString;
+  var isArray = function (input) { return Array.isArray(input) };
+
+  function formatColor$1 (color) {
+    if (isArray(color)) return color;
+
+    var _color = formatColor(color);
+
+    return [_color[0] / 255, _color[1] / 255, _color[2] / 255, _color[3]];
+  }
+
+  var formatTheme = (function (theme) {
+    var _theme = {
+      colors: []
+    };
+
+    if ('colors' in theme) {
+      var _iterator = _createForOfIteratorHelper(theme.colors),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var color = _step.value;
+
+          _theme.colors.push(formatColor$1(color));
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+
+    return _theme;
+  });
+
+  var $RegExp = {
+
+      // 空白字符:http://www.w3.org/TR/css3-selectors/#whitespace
+      blankReg: new RegExp("[\\x20\\t\\r\\n\\f]"),
+      blanksReg: /^[\x20\t\r\n\f]{0,}$/,
+
+      // 标志符
+      identifier: /^[a-zA-Z_$][0-9a-zA-Z_$]{0,}$/,
+
+  };
+
+  // 把表达式按照最小单位切割
+  // 后续我们的任务就是对这个数组进行归约即可(归约交付给别的地方，这里不继续处理)
+
+  /**
+   * 例如：
+   *  target={
+   *      a:{
+   *              value:9
+   *         },
+   *      b:7,
+   *      flag:'no'
+   *  }
+   *  express= "a.value>10 && b< 11 ||flag=='yes'"
+   * 变成数组以后应该是：
+   *
+   * // 比如最后的yes@value表示这是一个最终的值，不需要再计算了
+   * ['a','[@value','value@value',']@value','>@value','10@value','&&@value','b','<@value','||@value','flag','==@value','yes@value']
+   *
+   * 然后，进一步解析得到：
+   * [{value:9},'[','value',']','>',10,'&&',7,'<','||','no','==','yes']
+   *
+   * (当然，我们实际运算的时候，可能和这里不完全一致，这里只是为了方便解释我们的主体思想)
+   *
+   * 然后我们返回上面的结果即可！
+   */
+
+  // 除了上述原因，统一前置处理还有一个好处就是：
+  // 可以提前对部分语法错误进行报错，方便定位调试
+  // 因为后续的操作越来越复杂，错误越提前越容易定位
+
+  var specialCode1 = ['+', '-', '*', '/', '%', '&', '|', '!', '?', ':', '[', ']', '(', ")", '>', '<', '='];
+  var specialCode2 = ['+', '-', '*', '/', '%', '&', '|', '!', '?', ':', '>', '<', '=', '<=', '>=', '==', '===', '!=', '!=='];
+
+  function analyseExpress (target, express, scope) {
+
+      // 剔除开头和结尾的空白
+      express = express.trim();
+
+      var i = -1,
+
+          // 当前面对的字符
+          currentChar = null;
+
+      // 获取下一个字符
+      var next = function () {
+          currentChar = i++ < express.length - 1 ? express[i] : null;
+          return currentChar;
+      };
+
+      // 获取往后n个值
+      var nextNValue = function (n) {
+          return express.substring(i, n + i > express.length ? express.length : n + i);
+      };
+
+      next();
+
+      var expressArray = [];
+      while (true) {
+
+          if (i >= express.length) break;
+
+          // 先匹配普通的符号
+          // + - * / %
+          // && || !
+          // ? :
+          // [ ] ( )
+          // > < >= <= == === != !==
+          // 如果是&或者|比较特殊
+
+          if (specialCode1.indexOf(currentChar) > -1) {
+
+              // 对于特殊的符号
+              if (['&', '|', '='].indexOf(currentChar) > -1) {
+                  if (['==='].indexOf(nextNValue(3)) > -1) {
+                      expressArray.push(nextNValue(3));
+                      i += 2; next();
+                  } else if (['&&', '||', '=='].indexOf(nextNValue(2)) > -1) {
+                      expressArray.push(nextNValue(2));
+                      i += 1; next();
+                  } else {
+                      throw new Error("Illegal expression : " + express + "\nstep='analyseExpress',index=" + i);
+                  }
+              }
+
+
+              else {
+
+                  // 拦截部分比较特殊的
+                  if (['!=='].indexOf(nextNValue(3)) > -1) {
+                      expressArray.push(nextNValue(3));
+                      i += 2; next();
+                  } else if (['>=', '<=', '!='].indexOf(nextNValue(2)) > -1) {
+                      expressArray.push(nextNValue(2));
+                      i += 1; next();
+                  }
+
+                  // 普通的单一的
+                  else {
+                      expressArray.push(currentChar);
+                      next();
+                  }
+
+              }
+          }
+
+          // 如果是字符串
+          else if (['"', "'"].indexOf(currentChar) > -1) {
+              var temp = "", beginTag = currentChar;
+              next();
+
+              // 如果没有遇到结束标签
+              // 目前没有考虑 '\'' 这种带转义字符的情况，当然，'\"'这种是支持的
+              // 后续如果希望支持，优化这里即可
+              while (currentChar != beginTag) {
+                  if (i >= express.length) {
+
+                      // 如果还没有遇到结束标识就结束了，属于字符串未闭合错误
+                      throw new Error("String unclosed error : " + express + "\nstep='analyseExpress',index=" + i);
+
+                  }
+
+                  // 继续拼接
+                  temp += currentChar;
+                  next();
+              }
+              expressArray.push(temp + "@string");
+              next();
+          }
+
+          // 如果是数字
+          else if (/\d/.test(currentChar)) {
+              var dotFlag = 'no'; // no表示还没有匹配到.，如果已经匹配到了，标识为yes，如果匹配到了.，可是后面还没有遇到数组，标识为error
+              var temp = currentChar; next();
+              while (i < express.length) {
+                  if (/\d/.test(currentChar)) {
+                      temp += currentChar;
+                      if (dotFlag == 'error') dotFlag = 'yes';
+                  } else if ('.' == currentChar && dotFlag == 'no') {
+                      temp += currentChar;
+                      dotFlag = 'error';
+                  } else {
+                      break;
+                  }
+                  next();
+              }
+
+              // 如果小数点后面没有数字，辅助添加一个0
+              if (dotFlag == 'error') temp += "0";
+              expressArray.push(+temp);
+          }
+
+          // 如果是特殊符号
+          // 也就是类似null、undefined等
+          else if (['null', 'true'].indexOf(nextNValue(4)) > -1) {
+              expressArray.push({
+                  "null": null,
+                  "true": true
+              }[nextNValue(4)]);
+              i += 3; next();
+          } else if (['false'].indexOf(nextNValue(5)) > -1) {
+              expressArray.push({
+                  'false': false
+              }[nextNValue(5)]);
+              i += 4; next();
+          } else if (['undefined'].indexOf(nextNValue(9)) > -1) {
+              expressArray.push({
+                  "undefined": undefined
+              }[nextNValue(9)]);
+              i += 8; next();
+          }
+
+          // 如果是空格
+          else if ($RegExp.blankReg.test(currentChar)) {
+              do {
+                  next();
+              } while ($RegExp.blankReg.test(currentChar) && i < express.length);
+          }
+
+          else {
+
+              var dot = false;
+
+              // 对于开头有.进行特殊捕获，因为有.意味着这个值应该可以变成['key']的形式
+              // 这是为了和[key]进行区分，例如：
+              // .key 等价于 ['key'] 翻译成这里就是 ['[','key',']']
+              // 可是[key]就不一样了，翻译成这里以后应该是 ['[','这个值取决当前对象和scope',']']
+              // 如果这里不进行特殊处理，后续区分需要额外的标记，浪费资源
+              if (currentChar == '.') {
+                  dot = true;
+                  next();
+              }
+
+              // 如果是标志符
+              /**
+               *  命名一个标识符时需要遵守如下的规则：
+               *  1.标识符中可以含有字母 、数字 、下划线_ 、$符号
+               *  2.标识符不能以数字开头
+               */
+              // 当然，是不是关键字等我们就不校对了，因为没有太大的实际意义
+              // 也就是类似flag等局部变量
+
+              if ($RegExp.identifier.test(currentChar)) {
+
+                  var len = 1;
+                  while (i + len <= express.length && $RegExp.identifier.test(nextNValue(len))) len += 1;
+                  if (dot) {
+                      expressArray.push('[');
+                      expressArray.push(nextNValue(len - 1) + '@string');
+                      expressArray.push(']');
+                  } else {
+                      var tempKey = nextNValue(len - 1);
+                      // 如果不是有前置.，那就是需要求解了
+                      var tempValue = tempKey in scope ? scope[tempKey] : target[tempKey];
+                      expressArray.push(isString(tempValue) ? tempValue + "@string" : tempValue);
+                  }
+                  i += (len - 2); next();
+              }
+
+              // 都不是，那就是错误
+              else {
+                  throw new Error("Illegal express : " + express + "\nstep='analyseExpress',index=" + i);
+              }
+          }
+
+      }
+
+      // 实际情况是，对于-1等特殊数字，可能存在误把1前面的-号作为运算符的错误，这里拦截校对一下
+      var length = 0;
+      for (var j = 0; j < expressArray.length; j++) {
+          if (["+", "-"].indexOf(expressArray[j]) > -1 &&
+              // 如果前面的也是运算符或开头，这个应该就不应该是运算符了
+              (j == 0 || specialCode2.indexOf(expressArray[length - 1]) > -1)) {
+              expressArray[length++] = +(expressArray[j] + expressArray[j + 1]);
+              j += 1;
+          } else {
+              expressArray[length++] = expressArray[j];
+          }
+      }
+      expressArray.length = length;
+
+      return expressArray;
+  }
+
+  var getExpressValue = function (value) {
+      // 这里是计算的内部，不需要考虑那么复杂的类型
+      if (typeof value == 'string') return value.replace(/@string$/, '');
+      return value;
+  };
+
+  var setExpressValue = function (value) {
+      if (typeof value == 'string') return value + "@string";
+      return value;
+  };
+
+  function evalValue (expressArray) {
+
+      // 采用按照优先级顺序归约的思想进行
+
+      // 需要明白，这里不会出现括号
+      // （小括号或者中括号，当然，也不会有函数，这里只会有最简单的表达式）
+      // 这也是我们可以如此归约的前提
+
+      // + - * / %
+      // && || !
+      // ? :
+      // > < >= <= == === != !==
+
+      // !
+      // 因为合并以后数组长度一定越来越短，我们直接复用以前的数组即可
+      var length = 0, i = 0;
+      for (; i < expressArray.length; i++) {
+          if (expressArray[i] == '!') {
+              // 由于是逻辑运算符，如果是字符串，最后的@string是否去掉已经没有意义了
+              expressArray[length] = !expressArray[++i];
+          } else expressArray[length] = expressArray[i];
+          length += 1;
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      // * / %
+      length = 0;
+      for (i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '*') {
+              // 假设不知道一定正确，主要是为了节约效率，是否提供错误提示，再议
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) * getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '/') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) / getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '%') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) % getExpressValue(expressArray[++i]);
+          } else {
+
+              // 上面不会导致数组增长
+              expressArray[length++] = expressArray[i];
+          }
+
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      // + -
+      length = 0;
+      for (i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '+') {
+              expressArray[length - 1] = setExpressValue(getExpressValue(expressArray[length - 1]) + getExpressValue(expressArray[++i]));
+          } else if (expressArray[i] == '-') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) - getExpressValue(expressArray[++i]);
+          } else expressArray[length++] = expressArray[i];
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      // > < >= <=
+      length = 0;
+      for (i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '>') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) > getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '<') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) < getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '<=') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) <= getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '>=') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) >= getExpressValue(expressArray[++i]);
+          } else expressArray[length++] = expressArray[i];
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      // == === != !==
+      length = 0;
+      for (i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '==') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) == getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '===') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) === getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '!=') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) != getExpressValue(expressArray[++i]);
+          } else if (expressArray[i] == '!==') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) !== getExpressValue(expressArray[++i]);
+          } else expressArray[length++] = expressArray[i];
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      // && ||
+      length = 0;
+      for (i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '&&') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) && getExpressValue(expressArray[1 + i]);
+              i += 1;
+          } else if (expressArray[i] == '||') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) || getExpressValue(expressArray[1 + i]);
+              i += 1;
+          } else expressArray[length++] = expressArray[i];
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      // ?:
+      length = 0;
+      for (i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '?') {
+              expressArray[length - 1] = getExpressValue(expressArray[length - 1]) ? getExpressValue(expressArray[i + 1]) : getExpressValue(expressArray[i + 3]);
+              i += 3;
+          } else expressArray[length++] = expressArray[i];
+      }
+      if (length == 1) return getExpressValue(expressArray[0]);
+      expressArray.length = length;
+
+      throw new Error('Unrecognized expression : [' + expressArray.toString() + "]");
+
+  }
+
+  function calcValue (target, expressArray, scope) {
+      var value = expressArray[0] in scope ? scope[expressArray[0]] : target[expressArray[0]];
+      for (var i = 1; i < expressArray.length; i++) {
+          try {
+              value = value[expressArray[i]];
+          } catch (e) {
+              console.error({
+                  target: target,
+                  scope: scope,
+                  expressArray: expressArray,
+                  index: i
+              });
+              throw e;
+          }
+      }
+      return value;
+  }
+
+  // 小括号去除方法
+
+  var doit1 = function (target, expressArray, scope) {
+
+      // 先消小括号
+      // 其实也就是归约小括号
+      if (expressArray.indexOf('(') > -1) {
+
+          var newExpressArray = [], temp = [],
+              // 0表示还没有遇到左边的小括号
+              // 1表示遇到了一个，以此类推，遇到一个右边的会减1
+              flag = 0;
+          for (var i = 0; i < expressArray.length; i++) {
+              if (expressArray[i] == '(') {
+                  if (flag > 0) {
+                      // 说明这个应该是需要计算的括号里面的括号
+                      temp.push('(');
+                  }
+                  flag += 1;
+              } else if (expressArray[i] == ')') {
+                  if (flag > 1) temp.push(')');
+                  flag -= 1;
+
+                  // 为0说明主的小括号归约结束了
+                  if (flag == 0) {
+                      var _value = evalValue(doit1(target, temp));
+                      newExpressArray.push(isString(_value) ? _value + '@string' : _value);
+                      temp = [];
+                  }
+              } else {
+                  if (flag > 0) temp.push(expressArray[i]);
+                  else newExpressArray.push(expressArray[i]);
+              }
+          }
+          expressArray = newExpressArray;
+      }
+
+      // 去掉小括号以后，调用中括号去掉方法
+      return doit2(expressArray);
+
+  };
+
+  // 中括号嵌套去掉方法
+
+  var doit2 = function (expressArray) {
+
+      var hadMore = true;
+      while (hadMore) {
+
+          hadMore = false;
+
+          var newExpressArray = [], temp = [],
+
+              // 如果为true表示当前在试探寻找归约最小单元的结束
+              flag = false;
+
+          // 开始寻找里面需要归约的最小单元（也就是可以立刻获取值的）
+          for (var i = 0; i < expressArray.length; i++) {
+
+              // 这说明这是一个需要归约的
+              // 不过不一定是最小单元
+              // 遇到了，先记下了
+              if (expressArray[i] == '[' && i != 0 && expressArray[i - 1] != ']') {
+                  if (flag) {
+                      // 如果之前已经遇到了，说明之前保存的是错误的，需要同步会主数组
+                      newExpressArray.push('[');
+                      for (var j = 0; j < temp.length; j++) newExpressArray.push(temp[j]);
+                  } else {
+                      // 如果之前没有遇到，修改标记即可
+                      flag = true;
+                  }
+                  temp = [];
+              }
+
+              // 如果遇到了结束，这说明当前暂存的就是最小归结单元
+              // 计算后放回主数组
+              else if (expressArray[i] == ']' && flag) {
+                  hadMore = true;
+
+                  // 计算
+                  var tempValue = evalValue(temp);
+                  var _value = newExpressArray[newExpressArray.length - 1][tempValue];
+                  newExpressArray[newExpressArray.length - 1] = isString(_value) ? _value + "@string" : _value;
+
+                  // 状态恢复
+                  flag = false;
+              } else {
+
+                  if (flag) {
+                      temp.push(expressArray[i]);
+                  } else {
+                      newExpressArray.push(expressArray[i]);
+                  }
+
+              }
+          }
+
+          expressArray = newExpressArray;
+
+      }
+
+      return expressArray;
+  };
+
+  // 路径
+  // ["[",express,"]","[",express"]","[",express,"]"]
+  // 变成
+  // [express][express][express]
+
+  var doit3 = function (expressArray) {
+      var newExpressArray = [], temp = [];
+      for (var i = 0; i < expressArray.length; i++) {
+          if (expressArray[i] == '[') {
+              temp = [];
+          } else if (expressArray[i] == ']') {
+              newExpressArray.push(evalValue(temp));
+          } else {
+              temp.push(expressArray[i]);
+          }
+      }
+      return newExpressArray;
+  };
+
+  // 获取路径数组(核心是归约的思想)
+
+  function toPath(target, expressArray, scope) {
+
+      var newExpressArray = doit1(target, expressArray);
+
+      // 其实无法就三类
+      // 第一类：[express][express][express]express
+      // 第二类：express
+      // 第三类：[express][express][express]
+
+      var path;
+
+      // 第二类
+      if (newExpressArray[0] != '[') {
+          path = [evalValue(newExpressArray)];
+      }
+
+      // 第三类
+      else if (newExpressArray[newExpressArray.length - 1] == ']') {
+          path = doit3(newExpressArray);
+      }
+
+      // 第一类
+      else {
+          var lastIndex = newExpressArray.lastIndexOf(']');
+          var tempPath = doit3(newExpressArray.slice(0, lastIndex + 1));
+          var tempArray = newExpressArray.slice(lastIndex + 1);
+          tempArray.unshift(calcValue(target, tempPath, scope));
+          path = [evalValue(tempArray)];
+      }
+
+      return path;
+  }
+
+  /*!
+   * 🔪 - 设置或获取指定对象上字符串表达式对应的值
+   * https://github.com/hai2007/algorithm.js/blob/master/value.js
+   *
+   * author hai2007 < https://hai2007.gitee.io/sweethome >
+   *
+   * Copyright (c) 2020-present hai2007 走一步，再走一步。
+   * Released under the MIT license
+   */
+
+  // 获取
+  var getValue = function (target, express, scope) {
+      if (arguments.length < 3) scope = {};
+
+      var expressArray = analyseExpress(target, express, scope);
+      var path = toPath(target, expressArray, scope);
+      return calcValue(target, path, scope);
+  };
+
+  // 设置
+  var setValue = function (target, express, value, scope) {
+      if (arguments.length < 4) scope = {};
+
+      var expressArray = analyseExpress(target, express, scope);
+      var path = toPath(target, expressArray, scope);
+
+      var _target = target;
+      for (var i = 0; i < path.length - 1; i++) {
+
+          // 如果需要补充
+          if (!(path[i] in _target)) _target[path[i]] = isArray(_target) ? [] : {};
+
+          // 拼接下一个
+          _target = _target[path[i]];
+      }
+
+      _target[path[path.length - 1]] = value;
+      return target;
+  };
+
+  /**
+   * 合并配置项
+   */
+
+  function merge (option, newOption) {
+    (function doMerge(express, source) {
+      for (var key in source) {
+        var newExpress = express + "['" + key + "']"; // 如果是对象且不说数组
+        // 需要进一步深入
+
+        if (isObject(source[key]) && !isArray(source[key])) {
+          if (!getValue(option, newExpress)) {
+            setValue(option, newExpress, {});
+          }
+
+          doMerge(newExpress, source[key]);
+        } // 否则直接合并即可
+        else {
+          setValue(option, newExpress, source[key]);
+        }
+      }
+    })("", newOption);
+
+    return option;
+  }
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
   var threeGeometry_min = createCommonjsModule(function (module) {
   /*!
    *  Three-Geometry - 为image3D.js设计开发的三维几何坐标运算库
@@ -1222,184 +1288,796 @@
    *
    * author 你好2007 < https://hai2007.gitee.io/sweethome >
    *
-   * version 1.1.3
+   * version 1.4.1
    *
    * Copyright (c) 2021-present hai2007 走一步，再走一步。
    * Released under the MIT license
    *
-   * Date:Sat Jan 01 2022 00:00:06 GMT+0800 (中国标准时间)
+   * Date:Fri May 06 2022 22:20:16 GMT+0800 (GMT+08:00)
    */
-  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(x,y,z,radius,num){var points=[x,y,z,x+radius,y,z],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),x+radius,z);points.push(point[0],y,point[1]);}return points}function prismVertical(x,y,z,radius,height,num){var points=[x+radius,y,z,x+radius,y+height,z],deg=Math.PI*2/num;for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),x+radius,z);points.push(point[0],y,point[1],point[0],y+height,point[1]);}return points}function sphereFragment(cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);}points.push(cx,cy-radius,cz);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(x,y,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(x,y+height,z,radius,num),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(x,y,z,radius,height,num),length:2*num+2,methods:"StripTriangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
+  (function(){function _typeof(obj){"@babel/helpers - typeof";if(typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"){_typeof=function(obj){return typeof obj};}else {_typeof=function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol&&obj!==Symbol.prototype?"symbol":typeof obj};}return _typeof(obj)}function _toConsumableArray(arr){return _arrayWithoutHoles(arr)||_iterableToArray(arr)||_unsupportedIterableToArray(arr)||_nonIterableSpread()}function _arrayWithoutHoles(arr){if(Array.isArray(arr))return _arrayLikeToArray(arr)}function _iterableToArray(iter){if(typeof Symbol!=="undefined"&&iter[Symbol.iterator]!=null||iter["@@iterator"]!=null)return Array.from(iter)}function _unsupportedIterableToArray(o,minLen){if(!o)return;if(typeof o==="string")return _arrayLikeToArray(o,minLen);var n=Object.prototype.toString.call(o).slice(8,-1);if(n==="Object"&&o.constructor)n=o.constructor.name;if(n==="Map"||n==="Set")return Array.from(o);if(n==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return _arrayLikeToArray(o,minLen)}function _arrayLikeToArray(arr,len){if(len==null||len>arr.length)len=arr.length;for(var i=0,arr2=new Array(len);i<len;i++)arr2[i]=arr[i];return arr2}function _nonIterableSpread(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var toString=Object.prototype.toString;function getType(value){if(value==null){return value===undefined?"[object Undefined]":"[object Null]"}return toString.call(value)}function _isNumber(value){return typeof value==="number"||value!==null&&_typeof(value)==="object"&&getType(value)==="[object Number]"}var isNumber=_isNumber;var circle={splitNum:function splitNum(precision,radius){var num=Math.ceil(Math.PI*2/Math.asin(precision/radius)*2);return isNaN(num)||num<12?12:num}};function rotate(cx,cy,deg,x,y){var cos=Math.cos(deg),sin=Math.sin(deg);return [(x-cx)*cos-(y-cy)*sin+cx,(x-cx)*sin+(y-cy)*cos+cy]}function prismHorizontal(normal,x,y,z,radius,num,d){var beginX,beginZ;if(num==4){var temp=radius/1.414;beginX=x+temp;beginZ=z+temp;}else {beginX=x+radius;beginZ=z;}var points=[x,y,z],deg=Math.PI*2/num;if(normal)points.push(0,d,0);points.push(beginX,y,beginZ);if(normal)points.push(0,d,0);for(var i=0;i<num;i++){var point=rotate(x,z,deg*(i+1),beginX,beginZ);points.push(point[0],y,point[1]);if(normal)points.push(0,d,0);}return points}function prismVertical(normal,x,y,z,radius,height,num){var points=[];var beginPosition;if(num==4){beginPosition=rotate(x,z,Math.PI*.25,x-radius,z);}else {beginPosition=[x+radius,z];}var deg=Math.PI*2/num,degHalf=Math.PI*2/(num*2);var endPosition,normalPosition=[];for(var i=0;i<num;i++){endPosition=rotate.apply(void 0,[x,z,deg].concat(_toConsumableArray(beginPosition)));if(normal){var halfPosition=rotate.apply(void 0,[x,z,degHalf].concat(_toConsumableArray(beginPosition)));normalPosition=[halfPosition[0],0,halfPosition[1]];}points.push.apply(points,[beginPosition[0],y,beginPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[beginPosition[0],y+height,beginPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[endPosition[0],y+height,endPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[beginPosition[0],y,beginPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[endPosition[0],y,endPosition[1]].concat(_toConsumableArray(normalPosition)));points.push.apply(points,[endPosition[0],y+height,endPosition[1]].concat(_toConsumableArray(normalPosition)));beginPosition=endPosition;}return points}function sphereFragment(normal,cx,cy,cz,radius,num,index){var points=[cx,cy+radius,cz],deg=Math.PI*2/num,point;if(normal)points.push(0,radius,0);for(var i=1;i<num*.5;i++){point=rotate(cx,cy,deg*i,cx,cy+radius);var point1=rotate(cx,cz,deg*index,point[0],cz);points.push(point1[0],point[1],point1[1]);if(normal)points.push(point1[0]-cx,point[1]-cy,point1[1]-cz);var point2=rotate(cx,cz,deg*(index+1),point[0],cz);points.push(point2[0],point[1],point2[1]);if(normal)points.push(point2[0]-cx,point2[1]-cy,point2[1]-cz);}points.push(cx,cy-radius,cz);if(normal)points.push(0,-radius,0);return points}var ThreeGeometry=function ThreeGeometry(options){if(!isNumber(options.precision)||options<=0){throw new Error("options.precision should be an integer greater than zero")}var threeGeometry={cylinder:function cylinder(doback,x,y,z,radius,height){var num=circle.splitNum(options.precision,radius);threeGeometry.prism(doback,x,y,z,radius,height,num);return threeGeometry},prism:function prism(doback,x,y,z,radius,height,num){doback({points:prismHorizontal(options.normal,x,y,z,radius,num,height>0?-1:1),length:num+2,methods:"FanTriangle"});doback({points:prismHorizontal(options.normal,x,y+height,z,radius,num,height>0?1:-1),length:num+2,methods:"FanTriangle"});doback({points:prismVertical(options.normal,x,y,z,radius,height,num),length:6*num,methods:"Triangle"});return threeGeometry},sphere:function sphere(doback,cx,cy,cz,radius){var num=circle.splitNum(options.precision,radius);for(var i=0;i<num;i++){doback({points:sphereFragment(options.normal,cx,cy,cz,radius,num,i),length:num+1,methods:"StripTriangle"});}return threeGeometry}};return threeGeometry};if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=ThreeGeometry;}else {window.ThreeGeometry=ThreeGeometry;}})();
   });
 
+  var calc = (function (geometrys, option) {
+    var threeGeometry = threeGeometry_min({
+      // 待定，实际需要动态计算
+      precision: 0.1,
+      normal: true
+    }); // 坐标值分量最大
+
+    var maxValue = 0; // 坐标刻度分量最大
+
+    var maxLabel = 0;
+
+    var _iterator = _createForOfIteratorHelper(geometrys),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var geometry = _step.value;
+
+        // 条目
+        if (geometry.type == 'item') {
+          // 长方体
+          if (geometry.name == 'cuboid') {
+            var value = Math.abs(geometry.start + geometry.length);
+            var label = Math.max(Math.abs(Math.ceil(geometry.index + geometry.size * 0.5)), Math.abs(Math.floor(geometry.index - geometry.size * 0.5)));
+            maxValue = Math.max(maxValue, value);
+            maxLabel = Math.max(maxLabel, label);
+          } // 连线组
+          else if (geometry.name == 'lines') {
+            var _iterator3 = _createForOfIteratorHelper(geometry.points),
+                _step3;
+
+            try {
+              for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+                var point = _step3.value;
+
+                var _value = Math.abs(point[1]);
+
+                var _label = Math.ceil(Math.abs(point[0]));
+
+                maxValue = Math.max(maxValue, _value);
+                maxLabel = Math.max(maxLabel, _label);
+              }
+            } catch (err) {
+              _iterator3.e(err);
+            } finally {
+              _iterator3.f();
+            }
+          }
+        }
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+
+    var geometryArray = [];
+
+    var _iterator2 = _createForOfIteratorHelper(geometrys),
+        _step2;
+
+    try {
+      var _loop = function _loop() {
+        var geometry = _step2.value;
+
+        // 条目
+        if (geometry.type == 'item') {
+          // 长方体
+          if (geometry.name == 'cuboid') {
+            threeGeometry.prism(function (data) {
+              geometryArray.push({
+                data: data,
+                color: geometry.color
+              });
+            }, geometry.index / maxLabel, geometry.start / maxValue, 0, 1 / maxLabel * geometry.size / 2, geometry.length / maxValue, 4);
+          } // 连线组
+          else if (geometry.name == 'lines') {
+            var points = [];
+
+            var _iterator4 = _createForOfIteratorHelper(geometry.points),
+                _step4;
+
+            try {
+              for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                var _point = _step4.value;
+                points.push(_point[0] / maxLabel, _point[1] / maxValue, 0, 0, 0, 1);
+              }
+            } catch (err) {
+              _iterator4.e(err);
+            } finally {
+              _iterator4.f();
+            }
+
+            geometryArray.push({
+              data: {
+                length: geometry.points.length,
+                methods: "StripLine",
+                points: points
+              },
+              color: geometry.color
+            });
+          }
+        } // 原生方法
+        else if (geometry.type == 'native') {
+          geometryArray.push({
+            data: {
+              length: geometry.points.length / 6,
+              methods: geometry.methods,
+              points: geometry.points
+            },
+            color: formatColor$1(geometry.color)
+          });
+        } // 几何
+        else if (geometry.type == 'geometry') {
+          threeGeometry[geometry.name].apply(threeGeometry, [function (data) {
+            geometryArray.push({
+              data: data,
+              color: formatColor$1(geometry.color)
+            });
+          }].concat(_toConsumableArray(geometry.params)));
+        }
+      };
+
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        _loop();
+      }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
+    }
+
+    return {
+      geometry: geometryArray
+    };
+  });
+
+  var image3D_min = createCommonjsModule(function (module) {
+  var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(r){return typeof r}:function(r){return r&&typeof Symbol==="function"&&r.constructor===Symbol&&r!==Symbol.prototype?"symbol":typeof r};(function(){var u=function r(t,n,e){var i=t.createShader(n);if(i==null)throw new Error("Unable to create shader!");t.shaderSource(i,e);t.compileShader(i);if(!t.getShaderParameter(i,t.COMPILE_STATUS))throw new Error("Failed to compile shader:"+t.getShaderInfoLog(i));return i};var o=function r(t,n,e){var i=u(t,t.VERTEX_SHADER,n),o=u(t,t.FRAGMENT_SHADER,e);var a=t.createProgram();t.attachShader(a,i);t.attachShader(a,o);t.linkProgram(a);if(!t.getProgramParameter(a,t.LINK_STATUS))throw new Error("Failed to link program: "+t.getProgramInfoLog(a));t.useProgram(a);return a};var a=function r(t,n){var e=t.createBuffer(),i=n?t.ELEMENT_ARRAY_BUFFER:t.ARRAY_BUFFER;t.bindBuffer(i,e);return e};var l=function r(t,n,e,i){var o=i?t.ELEMENT_ARRAY_BUFFER:t.ARRAY_BUFFER;t.bufferData(o,n,e);};var v=function r(t,n,e,i,o,a,u){t.vertexAttribPointer(n,e,i,u||false,o||0,a||0);t.enableVertexAttribArray(n);};var c=function r(t,n,e,i){var o=t.createTexture();if(i=="2d"){e=e||0;t.activeTexture(t["TEXTURE"+e]);}t.bindTexture(n,o);return o};var m=function r(t,n,e,i,o,a){i={rgb:t.RGB,rgba:t.RGBA,alpha:t.ALPHA}[i]||t.RGBA;t.texImage2D(n,e||0,i,i,{}[o]||t.UNSIGNED_BYTE,a);};var g=function r(t,n,e,i,o,a,u,f,c){i={rgb:t.RGB,rgba:t.RGBA,alpha:t.ALPHA}[i]||t.RGBA;e=e||0;o={}[o]||t.UNSIGNED_BYTE;var s=[t.TEXTURE_CUBE_MAP_POSITIVE_X,t.TEXTURE_CUBE_MAP_NEGATIVE_X,t.TEXTURE_CUBE_MAP_POSITIVE_Y,t.TEXTURE_CUBE_MAP_NEGATIVE_Y,t.TEXTURE_CUBE_MAP_POSITIVE_Z,t.TEXTURE_CUBE_MAP_NEGATIVE_Z],l=void 0,v=void 0;for(l=0;l<s.length;l++){v=s[l];t.texImage2D(v,e,i,u,f,0,i,o,null);t.bindTexture(n,c);t.texImage2D(v,e,i,i,o,a[l]);}t.generateMipmap(n);};function f(u){return {setAttribute1f:function r(t,n){var e=u.getAttribLocation(u.program,t);u.vertexAttrib1f(e,n);},setAttribute2f:function r(t,n,e){var i=u.getAttribLocation(u.program,t);u.vertexAttrib2f(i,n,e);},setAttribute3f:function r(t,n,e,i){var o=u.getAttribLocation(u.program,t);u.vertexAttrib3f(o,n,e,i);},setAttribute4f:function r(t,n,e,i,o){var a=u.getAttribLocation(u.program,t);u.vertexAttrib4f(a,n,e,i,o);},setAttribute1i:function r(t,n){var e=u.getAttribLocation(u.program,t);u.vertexAttrib1i(e,n);},setAttribute2i:function r(t,n,e){var i=u.getAttribLocation(u.program,t);u.vertexAttrib2i(i,n,e);},setAttribute3i:function r(t,n,e,i){var o=u.getAttribLocation(u.program,t);u.vertexAttrib3i(o,n,e,i);},setAttribute4i:function r(t,n,e,i,o){var a=u.getAttribLocation(u.program,t);u.vertexAttrib4i(a,n,e,i,o);},setUniform1f:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniform1f(e,n);},setUniform2f:function r(t,n,e){var i=u.getUniformLocation(u.program,t);u.uniform2f(i,n,e);},setUniform3f:function r(t,n,e,i){var o=u.getUniformLocation(u.program,t);u.uniform3f(o,n,e,i);},setUniform4f:function r(t,n,e,i,o){var a=u.getUniformLocation(u.program,t);u.uniform4f(a,n,e,i,o);},setUniform1i:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniform1i(e,n);},setUniform2i:function r(t,n,e){var i=u.getUniformLocation(u.program,t);u.uniform2i(i,n,e);},setUniform3i:function r(t,n,e,i){var o=u.getUniformLocation(u.program,t);u.uniform3i(o,n,e,i);},setUniform4i:function r(t,n,e,i,o){var a=u.getUniformLocation(u.program,t);u.uniform4i(a,n,e,i,o);},setUniformMatrix2fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix2fv(e,false,n);},setUniformMatrix3fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix3fv(e,false,n);},setUniformMatrix4fv:function r(t,n){var e=u.getUniformLocation(u.program,t);u.uniformMatrix4fv(e,false,n);}}}function E(i){var o={byte:i.UNSIGNED_BYTE,short:i.UNSIGNED_SHORT};return {openDeep:function r(){i.enable(i.DEPTH_TEST);return this},points:function r(t,n,e){if(e){i.drawElements(i.POINTS,n,o[e],t);}else {i.drawArrays(i.POINTS,t,n);}return this},lines:function r(t,n,e){if(e){i.drawElements(i.LINES,n,o[e],t);}else {i.drawArrays(i.LINES,t,n);}return this},stripLines:function r(t,n,e){if(e){i.drawElements(i.LINE_STRIP,n,o[e],t);}else {i.drawArrays(i.LINE_STRIP,t,n);}return this},loopLines:function r(t,n,e){if(e){i.drawElements(i.LINE_LOOP,n,o[e],t);}else {i.drawArrays(i.LINE_LOOP,t,n);}return this},triangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLES,n,o[e],t);}else {i.drawArrays(i.TRIANGLES,t,n);}return this},stripTriangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLE_STRIP,n,o[e],t);}else {i.drawArrays(i.TRIANGLE_STRIP,t,n);}return this},fanTriangles:function r(t,n,e){if(e){i.drawElements(i.TRIANGLE_FAN,n,o[e],t);}else {i.drawArrays(i.TRIANGLE_FAN,t,n);}return this}}}var _=function r(t,n){var e=["webgl","experimental-webgl","webkit-3d","moz-webgl"],i=null,o=void 0;for(o=0;o<e.length;o++){try{i=t.getContext(e[o],n);}catch(r){}if(i)break}if(!i)throw new Error("Non canvas or browser does not support webgl.");return i};function s(r,t){var s=_(r,t),e={_gl_:s,painter:function r(){return E(s)},shader:function r(t,n){s.program=o(s,t,n);return e},buffer:function r(e){a(s,e);var f=void 0,c={write:function r(t,n){n=n||s.STATIC_DRAW;l(s,t,n,e);f=t;return c},use:function r(t,n,e,i,o,a){var u=f.BYTES_PER_ELEMENT;if(typeof t=="string")t=s.getAttribLocation(s.program,t);e=e||0;i=i||0;o=o||s.FLOAT;v(s,t,n,o,e*u,i*u,a);return c}};return c},texture:function u(r,t){var f={"2d":s.TEXTURE_2D,cube:s.TEXTURE_CUBE_MAP}[r];var u=c(s,f,t,r);s.texParameteri(f,s.TEXTURE_MIN_FILTER,s.NEAREST);s.texParameteri(f,s.TEXTURE_WRAP_S,s.CLAMP_TO_EDGE);s.texParameteri(f,s.TEXTURE_WRAP_T,s.CLAMP_TO_EDGE);var o={useImage:function r(t,n,e,i){m(s,f,n,e,i,t);return o},useCube:function r(t,n,e,i,o,a){g(s,f,i,o,a,t,n,e,u);}};return o}};var n=f(s);for(var i in n){e[i]=n[i];}s.viewport(0,0,s.canvas.width,s.canvas.height);s.depthFunc(s.LEQUAL);return e}function p(r,t){for(var n in t){try{r[n]=t[n];}catch(r){throw new Error("Illegal property key : "+n)}}return r}function d(n,r){return function(t){return new function r(){var i=this;var o=n.buffer(t);this.write=function(r){o.write(r);return i};if(!t){this.use=function(r,t,n,e){o.use(r,t,n,e);return i};}}}}function A(r,t,n,e){e=e||0;var i=Math.sqrt(t*t+n*n+e*e);return [1,0,0,0,0,1,0,0,0,0,1,0,t*r/i,n*r/i,e*r/i,1]}function b(r){var t=Math.sin(r),n=Math.cos(r);return [n,t,0,0,-t,n,0,0,0,0,1,0,0,0,0,1]}function h(r,t,n,e,i,o){e=e||0;i=i||0;o=o||0;return [r,0,0,0,0,t,0,0,0,0,n,0,e-e*r,i-i*t,o-o*n,1]}function T(r,t,n,e,i,o){if(typeof r==="number"&&typeof t==="number"){if(typeof n!=="number"){n=0;e=r;i=t;o=1;}else if(typeof e!=="number"||typeof i!=="number"||typeof o!=="number"){e=r;i=t;o=n;r=0;t=0;n=0;}if(r==e&&t==i&&n==o)throw new Error("It's not a legitimate ray!");var a=Math.sqrt((e-r)*(e-r)+(i-t)*(i-t)),u=a!=0?(i-t)/a:1,f=a!=0?(e-r)/a:0,c=(e-r)*f+(i-t)*u,s=o-n,l=Math.sqrt(c*c+s*s),v=l!=0?s/l:1,m=l!=0?c/l:0;return [[u,v*f,f*m,0,-f,u*v,u*m,0,0,-m,v,0,t*f-r*u,n*m-r*f*v-t*u*v,-r*f*m-t*u*m-n*v,1],[u,-f,0,0,v*f,v*u,-m,0,f*m,u*m,v,0,r,t,n,1]]}else {throw new Error("a1 and b1 is required!")}}var y=function r(t,n){var e=[];for(var i=0;i<4;i++){for(var o=0;o<n.length/4;o++){e[o*4+i]=t[i]*n[o*4]+t[i+4]*n[o*4+1]+t[i+8]*n[o*4+2]+t[i+12]*n[o*4+3];}}return e};function w(r){var c=r||[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];var s={move:function r(t,n,e,i){c=y(A(t,n,e,i),c);return s},rotate:function r(t,n,e,i,o,a,u){var f=T(n,e,i,o,a,u);c=y(y(y(f[1],b(t)),f[0]),c);return s},scale:function r(t,n,e,i,o,a){c=y(h(t,n,e,i,o,a),c);return s},multiply:function r(t,n){c=n?y(c,t):y(t,c);return s},use:function r(t,n,e,i){e=e||0;i=i||1;var o=y(c,[t,n,e,i]);o[0]=+o[0].toFixed(7);o[1]=+o[1].toFixed(7);o[2]=+o[2].toFixed(7);o[3]=+o[3].toFixed(7);return o},value:function r(){return c}};return s}var L=function r(t){return Array.isArray(t)};function U(i,r){return function(){var n=arguments.length>0&&arguments[0]!==undefined?arguments[0]:{};return new function r(){var u=this;var e=i._gl_.canvas.clientWidth/i._gl_.canvas.clientHeight;if(L(n.size)){n.size=n.size[0];console.warn('"options.size" should be a number. The writing of array is out of date: https://hai2007.gitee.io/image3d/index.html#/api?fixed=camera-set');}if(!("size"in n)){n.size=1;}var f=w();var t=n.proof?-1:1;f.multiply([1/n.size,0,0,0,0,1/n.size,0,0,0,0,t/n.size,0,0,0,0,1]);this.setProportion=function(r){e=r;return u};this.rotateEye=function(r,t,n,e,i,o,a){f.rotate(-r,t,n,e,i,o,a);return u};this.moveEye=function(r,t,n,e){f.move(-r,t,n,e);return u};this.rotateBody=function(r,t,n,e,i,o,a){f.rotate(r,t,n,e,i,o,a);return u};this.moveBody=function(r,t,n,e){f.move(r,t,n,e);return u};this.scaleBody=function(r,t,n,e,i,o){f.scale(r,t,n,e,i,o);return u};this.value=function(){var r=1;var t=1;if(e>1){t=e;}else {r=1/e;}var n=Math.max(r,t);return w(f.value()).multiply([r,0,0,0,0,t,0,0,0,0,n,0,0,0,0,1]).value()};}}}function e(n,e){e.drawPoint=function(r,t){n.points(r,t);return e};e.drawLine=function(r,t){n.lines(r,t);return e};e.drawStripLine=function(r,t){n.stripLines(r,t);return e};e.drawLoopLine=function(r,t){n.loopLines(r,t);return e};e.drawTriangle=function(r,t){n.triangles(r,t);return e};e.drawStripTriangle=function(r,t){n.stripTriangles(r,t);return e};e.drawFanTriangle=function(r,t){n.fanTriangles(r,t);return e};}function i(e,i){i.elemPoint=function(r,t,n){n=n||"byte";e.points(r,t,n);return i};i.elemLine=function(r,t,n){n=n||"byte";e.lines(r,t,n);return i};i.elemStripLine=function(r,t,n){n=n||"byte";e.stripLines(r,t,n);return i};i.elemLoopLine=function(r,t,n){n=n||"byte";e.loopLines(r,t,n);return i};i.elemTriangle=function(r,t,n){n=n||"byte";e.triangles(r,t,n);return i};i.elemStripTriangle=function(r,t,n){n=n||"byte";e.stripTriangles(r,t,n);return i};i.elemFanTriangle=function(r,t,n){n=n||"byte";e.fanTriangles(r,t,n);return i};}function R(r,t){var n=r.painter();if(t.depth){n.openDeep();}return function(){return new function r(){e(n,this);i(n,this);}}}function x(i,r){return function(e){return new function r(){var t=this;var n=i.texture("2d",e);this.write=function(r){n.useImage(r);return t};}}}function I(t,r){return function(f,c){return new function r(){var a=this;var u=t.texture("cube");this.write=function(r,t,n,e,i,o){u.useCube([r,t,n,e,i,o],f,c);return a};}}}var t={vs:"\n    attribute vec4 a_position;\n    attribute vec4 a_color;\n    attribute float a_size;\n    varying vec4 v_color;\n    void main(){\n        gl_Position=a_position;\n        gl_PointSize=a_size;\n        v_color=a_color;\n    }\n    ",fs:"\n    precision mediump float;\n    varying vec4 v_color;\n    void main(){\n        gl_FragColor=v_color;\n    }\n    "};var n={vs:"\n    attribute vec4 a_position;\n    attribute vec4 a_color;\n    attribute float a_size;\n    varying vec4 v_color;\n    uniform mat4 u_matrix;\n    void main(){\n        gl_Position=u_matrix * a_position;\n        gl_PointSize=a_size;\n        v_color=a_color;\n    }\n    ",fs:"\n    precision mediump float;\n    varying vec4 v_color;\n    void main(){\n        gl_FragColor=v_color;\n    }\n    "};function S(r){return {type_default:t,type_camera:n}["type_"+r]}var r=function r(t,n){var e=p({depth:false},n||{});var o=s(t);var i=e["vertex-shader"],a=e["fragment-shader"];if(!i||!a){var u=S(e.shader||"default");i=u.vs;a=u.fs;}o.shader(i,a);r.fn=r.prototype;r.fn.Buffer=d(o);r.fn.Camera=U(o);r.fn.Painter=R(o,e);r.fn.Texture2D=x(o);r.fn.TextureCube=I(o);r.fn.setAttributeFloat=function(r,t,n,e,i){o["setAttribute"+(arguments.length-1)+"f"](r,t,n,e,i);return this};r.fn.setAttributeInt=function(r,t,n,e,i){o["setAttribute"+(arguments.length-1)+"i"](r,t,n,e,i);return this};r.fn.setUniformFloat=function(r,t,n,e,i){o["setUniform"+(arguments.length-1)+"f"](r,t,n,e,i);return this};r.fn.setUniformInt=function(r,t,n,e,i){o["setUniform"+(arguments.length-1)+"i"](r,t,n,e,i);return this};r.fn.setUniformMatrix=function(r,t){var n={4:2,9:3,16:4}[t.length];o["setUniformMatrix"+n+"fv"](r,t);return this};};r.core=s;if((_typeof(module))==="object"&&_typeof(module.exports)==="object"){module.exports=r;}else {var P=window.image3D;r.noConflict=function(){if(window.image3D===r){window.image3D=P;}return r};window.image3D=r;}})();
+  });
+
+  /*!
+   * 🌐 - 获取键盘此时按下的键的组合结果
+   * https://github.com/hai2007/browser.js/blob/master/getKeyString.js
+   *
+   * author hai2007 < https://hai2007.gitee.io/sweethome >
+   *
+   * Copyright (c) 2021-present hai2007 走一步，再走一步。
+   * Released under the MIT license
+   */
+  // 字典表
+  var dictionary = {
+
+      // 数字
+      48: [0, ')'],
+      49: [1, '!'],
+      50: [2, '@'],
+      51: [3, '#'],
+      52: [4, '$'],
+      53: [5, '%'],
+      54: [6, '^'],
+      55: [7, '&'],
+      56: [8, '*'],
+      57: [9, '('],
+      96: [0, 0],
+      97: 1,
+      98: 2,
+      99: 3,
+      100: 4,
+      101: 5,
+      102: 6,
+      103: 7,
+      104: 8,
+      105: 9,
+      106: "*",
+      107: "+",
+      109: "-",
+      110: ".",
+      111: "/",
+
+      // 字母
+      65: ["a", "A"],
+      66: ["b", "B"],
+      67: ["c", "C"],
+      68: ["d", "D"],
+      69: ["e", "E"],
+      70: ["f", "F"],
+      71: ["g", "G"],
+      72: ["h", "H"],
+      73: ["i", "I"],
+      74: ["j", "J"],
+      75: ["k", "K"],
+      76: ["l", "L"],
+      77: ["m", "M"],
+      78: ["n", "N"],
+      79: ["o", "O"],
+      80: ["p", "P"],
+      81: ["q", "Q"],
+      82: ["r", "R"],
+      83: ["s", "S"],
+      84: ["t", "T"],
+      85: ["u", "U"],
+      86: ["v", "V"],
+      87: ["w", "W"],
+      88: ["x", "X"],
+      89: ["y", "Y"],
+      90: ["z", "Z"],
+
+      // 方向
+      37: "left",
+      38: "up",
+      39: "right",
+      40: "down",
+      33: "page up",
+      34: "page down",
+      35: "end",
+      36: "home",
+
+      // 控制键
+      16: "shift",
+      17: "ctrl",
+      18: "alt",
+      91: "command",
+      92: "command",
+      93: "command",
+      224: "command",
+      9: "tab",
+      20: "caps lock",
+      32: "spacebar",
+      8: "backspace",
+      13: "enter",
+      27: "esc",
+      46: "delete",
+      45: "insert",
+      144: "number lock",
+      145: "scroll lock",
+      12: "clear",
+      19: "pause",
+
+      // 功能键
+      112: "f1",
+      113: "f2",
+      114: "f3",
+      115: "f4",
+      116: "f5",
+      117: "f6",
+      118: "f7",
+      119: "f8",
+      120: "f9",
+      121: "f10",
+      122: "f11",
+      123: "f12",
+
+      // 余下键
+      189: ["-", "_"],
+      187: ["=", "+"],
+      219: ["[", "{"],
+      221: ["]", "}"],
+      220: ["\\", "|"],
+      186: [";", ":"],
+      222: ["'", '"'],
+      188: [",", "<"],
+      190: [".", ">"],
+      191: ["/", "?"],
+      192: ["`", "~"]
+
+  };
+
+  // 非独立键字典
+  var help_key = ["shift", "ctrl", "alt"];
+
+  /**
+   * 键盘按键
+   * 返回键盘此时按下的键的组合结果
+   */
+  function getKeyString(event) {
+      event = event || window.event;
+
+      var keycode = event.keyCode || event.which;
+      var key = dictionary[keycode] || keycode;
+      if (!key) return;
+      if (key.constructor !== Array) key = [key, key];
+
+      var _key = key[0];
+
+      var shift = event.shiftKey ? "shift+" : "",
+          alt = event.altKey ? "alt+" : "",
+          ctrl = event.ctrlKey ? "ctrl+" : "";
+
+      var resultKey = "",
+          preKey = ctrl + shift + alt;
+
+      if (help_key.indexOf(key[0]) >= 0) {
+          key[0] = key[1] = "";
+      }
+
+      // 判断是否按下了caps lock
+      var lockPress = event.code == "Key" + event.key && !shift;
+
+      // 只有字母（且没有按下功能Ctrl、shift或alt）区分大小写
+      resultKey = (preKey + ((preKey == '' && lockPress) ? key[1] : key[0]));
+
+      if (key[0] == "") {
+          resultKey = resultKey.replace(/\+$/, '');
+      }
+
+      return resultKey == '' ? _key : resultKey;
+  }
+
+  /*!
+   * 🌐 - 屏幕3D控制信息捕获
+   * https://github.com/hai2007/browser.js/blob/master/viewHandler.js
+   *
+   * author hai2007 < https://hai2007.gitee.io/sweethome >
+   *
+   * Copyright (c) 2022-present hai2007 走一步，再走一步。
+   * Released under the MIT license
+   */
+
+  function viewHandler (callback) {
+
+      var el = document.getElementsByTagName('body')[0];
+
+      // 键盘控制
+      xhtml.bind(el, 'keydown', function (event) {
+          var keyCode = getKeyString(event);
+
+          // 视角向上
+          if (keyCode == 'up') {
+              callback({
+                  type: "lookUp"
+              });
+          }
+
+          // 视角向下
+          else if (keyCode == 'down') {
+              callback({
+                  type: "lookDown"
+              });
+          }
+
+          // 视角向左
+          else if (keyCode == 'left') {
+              callback({
+                  type: "lookLeft"
+              });
+          }
+
+          // 视角向右
+          else if (keyCode == 'right') {
+              callback({
+                  type: "lookRight"
+              });
+          }
+
+      });
+
+      // 鼠标控制
+      var mouseP = null;
+      var doMove = function (event) {
+          if (mouseP == null) return;
+
+          var tempMouseP = xhtml.mousePosition(el, event);
+
+          // 先求解出轨迹向量
+          var normal = [tempMouseP.x - mouseP.x, mouseP.y - tempMouseP.y];
+
+          // 方向向量旋转90deg得到选择向量
+          var rotateNormal = [
+              normal[1],
+              normal[0] * -1,
+              0
+          ];
+
+          // 非法射线忽略
+          if (rotateNormal[0] == 0 && rotateNormal[1] == 0) return;
+
+          callback({
+              type: "rotate",
+              normal: rotateNormal,
+              dist: Math.abs(tempMouseP.x - mouseP.x) + Math.abs(tempMouseP.y - mouseP.y)
+          });
+
+          mouseP = tempMouseP;
+      };
+
+      xhtml.bind(el, 'mousedown', function (event) {
+          mouseP = xhtml.mousePosition(el, event);
+      });
+      xhtml.bind(el, 'mouseup', function (event) {
+          mouseP = null;
+      });
+      xhtml.bind(el, 'mousemove', function (event) {
+          doMove(event);
+      });
+
+      // 手指控制
+      xhtml.bind(el, 'touchend', function (event) {
+          mouseP = null;
+      });
+      xhtml.bind(el, 'touchstart', function (event) {
+          mouseP = xhtml.mousePosition(el, event.touches[0]);
+      });
+      xhtml.bind(el, 'touchmove', function (event) {
+          doMove(event.touches[0]);
+      });
+
+      let doScale = function (value) {
+          if (value == 0) return;
+
+          callback({
+              type: "scale",
+              kind: value < 0 ? "reduce" : "enlarge",
+              rate: Math.abs(value),
+          });
+      };
+
+      // 滚轮控制
+      xhtml.bind(el, 'mousewheel', function (event) {
+          doScale(event.wheelDelta);
+      });
+
+      if (window.addEventListener) {
+
+          // 针对火狐浏览器
+          window.addEventListener('DOMMouseScroll', function (event) {
+              doScale(-1 * event.detail);
+          }, false);
+      }
+
+  }
+
+  // 顶点着色器
+  var shaderVertex = "\n\n    attribute vec4 a_position; // \u9876\u70B9\u5750\u6807\n    uniform mat4 u_matrix;     // \u53D8\u6362\u77E9\u9635\n    uniform vec3 u_LPosition;  // \u5149\u7684\u4F4D\u7F6E\n    attribute vec3 a_normal;\n\n    varying vec3 v_LDirection;\n    varying vec3 v_normal;\n\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n        // \u70B9\u5149\u6E90\u65B9\u5411\n        // \u9876\u70B9\u7684\u4F4D\u7F6E\u5E94\u8BE5\u4F7F\u7528\u8BA1\u7B97\u8FC7\u7684\n        v_LDirection = vec3(gl_Position) - u_LPosition;\n\n        v_normal = vec3(u_matrix * vec4(a_normal, 1));\n\n    }\n";
+
+  // 片段着色器
+  var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(abs(dot(LDirection, normal)), 0.4);\n\n        gl_FragColor = u_color * u_LColor * dotValue;\n    }\n";
+
+  var bar = (function (params, api) {
+    var data = params.data;
+    params.itemStyle = params.itemStyle || {};
+    var geometry = [];
+
+    for (var i = 0; i < data.length; i++) {
+      if (isArray(data[i])) {
+        for (var j = 0; j < data[i].length; j++) {
+          var smallWidth = 0.7 / data[i].length;
+          geometry.push({
+            type: "item",
+            name: "cuboid",
+            length: data[i][j],
+            start: params.itemStyle.align == 'middle' ? data[i][j] * 0.5 : 0,
+            index: i + 0.5 - data.length * 0.5 + (j - data[i].length * 0.5) * smallWidth,
+            size: smallWidth,
+            color: api.color(j)
+          });
+        }
+      } else {
+        geometry.push({
+          type: "item",
+          name: "cuboid",
+          length: data[i],
+          start: params.itemStyle.align == 'middle' ? data[i] * 0.5 : 0,
+          index: i + 0.5 - data.length * 0.5,
+          size: 0.7,
+          color: params.itemStyle.colors ? api.color(i) : api.color(0)
+        });
+      }
+    }
+
+    return {
+      geometry: geometry
+    };
+  });
+
+  var line = (function (params, api) {
+    var data = [];
+
+    if (isArray(params.data[0])) {
+      for (var i = 0; i < params.data[0].length; i++) {
+        var _data = [];
+
+        for (var j = 0; j < params.data.length; j++) {
+          _data.push(params.data[j][i]);
+        }
+
+        data.push(_data);
+      }
+    } else {
+      data.push(params.data);
+    }
+
+    var geometry = [];
+
+    for (var _j = 0; _j < data.length; _j++) {
+      var points = [];
+
+      for (var _i = 0; _i < data[_j].length; _i++) {
+        points.push([_i + 0.5 - data[_j].length * 0.5, data[_j][_i]]);
+      }
+
+      geometry.push({
+        type: "item",
+        name: "lines",
+        points: points,
+        color: api.color(_j)
+      });
+    }
+
+    return {
+      geometry: geometry
+    };
+  });
+
+  var candlestick = (function (params, api) {
+    var data = params.data;
+    var geometry = [];
+
+    for (var i = 0; i < data.length; i++) {
+      // 红涨绿跌
+      geometry.push({
+        type: "item",
+        name: "cuboid",
+        length: data[i][1] - data[i][0],
+        start: data[i][0],
+        index: i + 0.5 - data.length * 0.5,
+        size: 0.7,
+        color: data[i][0] > data[i][1] ? [0, 1, 0, 1] : [1, 0, 0, 1]
+      }); // 最值
+
+      geometry.push({
+        type: "item",
+        name: "lines",
+        points: [[i + 0.5 - data.length * 0.5, data[i][2]], [i + 0.5 - data.length * 0.5, data[i][3]]],
+        color: data[i][0] > data[i][1] ? [0, 1, 0, 1] : [1, 0, 0, 1]
+      });
+    }
+
+    return {
+      geometry: geometry
+    };
+  });
+
+  var charts = {
+    bar: bar,
+    line: line,
+    candlestick: candlestick
+  };
+
   var Puly = /*#__PURE__*/function () {
-    // 三维画笔核心
-    // 几何体
-    // 光照
-    // 相机
-    // 几何体
-    function Puly(options) {
+    // 主题
+    function Puly(el) {
+      var _this = this;
+
       _classCallCheck(this, Puly);
 
-      _defineProperty(this, "__core", void 0);
+      _defineProperty(this, "size", void 0);
 
-      _defineProperty(this, "__geometry", void 0);
+      _defineProperty(this, "canvas", void 0);
 
-      _defineProperty(this, "__light", void 0);
+      _defineProperty(this, "image3d", void 0);
 
-      _defineProperty(this, "__camera", void 0);
+      _defineProperty(this, "painter", void 0);
 
-      _defineProperty(this, "__ThreeGeometry", void 0);
+      _defineProperty(this, "buffer", void 0);
 
-      // 核心画笔
-      this.__core = image3DCore(options.el);
+      _defineProperty(this, "camera", void 0);
 
-      this.__core.shader("\n    attribute vec4 a_position;\n    uniform mat4 u_matrix;\n    void main(){\n        gl_Position=u_matrix * a_position;\n    }\n    ", "\n    precision mediump float;\n    uniform vec4 u_color;\n    void main(){\n        gl_FragColor=u_color;\n    }\n    "); // 几何体
+      _defineProperty(this, "doDraw", null);
+
+      _defineProperty(this, "option", {});
+
+      // 获取绘制区域大小
+      this.size = xhtml.size(el); // 追加画布
+
+      this.canvas = xhtml.append(el, "<canvas width='" + this.size.width + "' height='" + this.size.height + "'>非常抱歉，您的浏览器不支持canvas!</canvas>");
+      this.image3d = new image3D_min(this.canvas, {
+        "vertex-shader": shaderVertex,
+        "fragment-shader": shaderFragment,
+        "depth": true
+      });
+      this.painter = this.image3d.Painter();
+      this.buffer = this.image3d.Buffer();
+      this.camera = this.image3d.Camera({
+        size: 4,
+        // 默认的时候，Z轴承的方向是朝里的，这里进行了校对
+        // https://hai2007.gitee.io/image3d/index.html#/api?fixed=camera-set
+        proof: true
+      }).rotateBody(-0.5, 1, 0, 0).rotateBody(0.2, 0, 0, 1).rotateBody(0.5, -1, 1, -1); // 设置点光源的颜色和位置
+
+      this.image3d.setUniformFloat("u_LColor", 1, 1, 1, 1);
+      this.image3d.setUniformFloat("u_LPosition", -5, 5, 5); // 监听绘制区域大小改变
+
+      observeResize(el, function () {// todo
+      }); // 鼠标键盘交互
+      // 每次调整的弧度
+
+      var deg = 0.1;
+      var rateScale = 1;
+      viewHandler(function (data) {
+        if (_this.doDraw == null) return;
+        /*
+         * 修改相机
+         */
+        // 键盘控制
+
+        if (data.type == 'lookUp') {
+          _this.camera.rotateBody(deg, 1, 0, 0);
+        } else if (data.type == 'lookDown') {
+          _this.camera.rotateBody(deg, -1, 0, 0);
+        } else if (data.type == 'lookLeft') {
+          _this.camera.rotateBody(deg, 0, 1, 0);
+        } else if (data.type == 'lookRight') {
+          _this.camera.rotateBody(deg, 0, -1, 0);
+        } // 鼠标拖动或手指控制
+        else if (data.type == 'rotate') {
+          var _this$camera;
+
+          (_this$camera = _this.camera).rotateBody.apply(_this$camera, [deg * data.dist * 0.07].concat(_toConsumableArray(data.normal)));
+        } // 滚轮控制
+        else if (data.type == 'scale') {
+          // 设置一个缩放上界
+          if (data.kind == 'enlarge' && rateScale >= 2) {
+            return;
+          }
+
+          var baseTimes = 0.899;
+          var times = data.kind == 'enlarge' ? 2 - baseTimes : baseTimes;
+          rateScale *= times;
+
+          _this.camera.scaleBody(times, times, times, 0, 0, 0);
+        } // 重新绘制
 
 
-      this.__geometry = [];
-      this.__ThreeGeometry = threeGeometry_min({
-        precision: 0.02
-      }); // 光照
-
-      this.__light = []; // 相机
-
-      var size = xhtml.size(options.el);
-      this.__camera = Matrix4(); // 相机应用压缩空间矩阵
-
-      this.__camera.multiply([2 / size.width, 0, 0, 0, 0, 2 / size.height, 0, 0, 0, 0, 2 / (size.width > size.height ? size.width : size.height), 0, 0, 0, 0, 1]);
-    }
-    /**
-     * -------------------------------
-     * 几何相关
-     * -------------------------------
-    */
+        _this.doDraw();
+      });
+    } // 设置主题
 
 
     _createClass(Puly, [{
-      key: "geometry",
-      value: function geometry(options) {
-        this.__geometry.push(options);
+      key: "setOption",
+      value: // 设置用户意图
+      // 我们根据这个配置进行分析后绘制
+      function setOption(option) {
+        var _this2 = this;
 
-        var index = this.__geometry.length - 1,
-            _this = this;
+        this.option = merge(this.option, option);
+        var geometrys = [];
 
-        return {
-          // 修改值
-          setValue: function setValue(attrs) {
-            for (var key in attrs) {
-              _this.__geometry[index][key] = attrs[key];
+        if ('series' in this.option) {
+          var _iterator = _createForOfIteratorHelper(this.option.series),
+              _step;
+
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var series = _step.value;
+
+              try {
+                var result = Puly.charts[series.type]({
+                  data: series.data || this.option.data || [],
+                  itemStyle: series.itemStyle || {}
+                }, {
+                  color: function color(index) {
+                    return Puly.theme.colors[index % Puly.theme.colors.length];
+                  }
+                });
+
+                var _iterator2 = _createForOfIteratorHelper(result.geometry),
+                    _step2;
+
+                try {
+                  for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                    var geometry = _step2.value;
+                    geometrys.push(geometry);
+                  }
+                } catch (err) {
+                  _iterator2.e(err);
+                } finally {
+                  _iterator2.f();
+                }
+              } catch (e) {
+                console.warn("[puly warn]Chart '" + series.type + "' not defined");
+              }
             }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+        }
+
+        var temp = calc(geometrys, this.option);
+
+        this.doDraw = function () {
+          // 传递照相机
+          _this2.image3d.setUniformMatrix("u_matrix", _this2.camera.value());
+
+          var _iterator3 = _createForOfIteratorHelper(temp.geometry),
+              _step3;
+
+          try {
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+              var _geometry = _step3.value;
+              var data = _geometry.data;
+
+              _this2.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+              _this2.image3d.setUniformFloat("u_color", _geometry.color[0], _geometry.color[1], _geometry.color[2], _geometry.color[3]);
+
+              _this2.painter["draw" + data.methods](0, data.length);
+            }
+          } catch (err) {
+            _iterator3.e(err);
+          } finally {
+            _iterator3.f();
+          }
+
+          if (!('xAxis' in _this2.option) || isBoolean(_this2.option.xAxis.show) && _this2.option.xAxis.show) {
+            // 绘制x坐标轴
+            _this2.buffer.write(new Float32Array([-1.3, 0, 0, 0, 0, 1, 1.3, 0, 0, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1, 1.25, -0.02, 0.02, 0, 0, 1, 1.25, -0.02, -0.02, 0, 0, 1, 1.25, 0.02, -0.02, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+            _this2.image3d.setUniformFloat("u_color", 1, 0, 0, 1);
+
+            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
+          }
+
+          if (!('yAxis' in _this2.option) || isBoolean(_this2.option.yAxis.show) && _this2.option.yAxis.show) {
+            // 绘制y坐标轴
+            _this2.buffer.write(new Float32Array([0, -1.3, 0, 0, 0, 1, 0, 1.3, 0, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, 0.02, 0, 0, 1, -0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, -0.02, 0, 0, 1, 0.02, 1.25, 0.02, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+            _this2.image3d.setUniformFloat("u_color", 0, 1, 0, 1);
+
+            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
+          }
+
+          if (!('zAxis' in _this2.option) || isBoolean(_this2.option.zAxis.show) && _this2.option.zAxis.show) {
+            // 绘制z坐标轴
+            _this2.buffer.write(new Float32Array([0, 0, -1.3, 0, 0, 1, 0, 0, 1.3, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1, -0.02, 0.02, 1.25, 0, 0, 1, -0.02, -0.02, 1.25, 0, 0, 1, 0.02, -0.02, 1.25, 0, 0, 1, 0.02, 0.02, 1.25, 0, 0, 1])).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+            _this2.image3d.setUniformFloat("u_color", 0, 0, 1, 1);
+
+            _this2.painter.drawLine(0, 2).drawFanTriangle(1, 6);
           }
         };
+
+        this.doDraw();
       }
-      /**
-       * -------------------------------
-       * 相机相关
-       * -------------------------------
-      */
+    }], [{
+      key: "registerTheme",
+      value: function registerTheme(theme) {
+        Puly.theme = formatTheme(theme);
+      } // 注册图表
 
     }, {
-      key: "rotate",
-      value: function rotate(deg, a1, b1, c1, a2, b2, c2) {
-        this.__camera.rotate(-1 * deg, a1, b1, c1, a2, b2, c2);
-
-        return this;
-      }
-    }, {
-      key: "scale",
-      value: function scale(xTimes, yTimes, zTimes, cx, cy, cz) {
-        this.__camera.scale(xTimes, yTimes, zTimes, cx, cy, cz);
-
-        return this;
-      }
-    }, {
-      key: "move",
-      value: function move(dis, a, b, c) {
-        this.__camera.move(-1 * dis, a, b, c);
-
-        return this;
-      }
-      /**
-       * -------------------------------
-       * 光照相关
-       * -------------------------------
-      */
-      // todo
-      // 绘制
-
-    }, {
-      key: "draw",
-      value: function draw() {
-        var painter = this.__core.painter();
-
-        var buffer = this.__core.buffer(); // 开启深度
-
-
-        painter.openDeep(); // 设置相机
-
-        this.__core.setUniformMatrix4fv('u_matrix', this.__camera.value()); // 一个个绘制几何体
-
-
-        var _iterator = _createForOfIteratorHelper(this.__geometry),
-            _step;
-
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var _this$__ThreeGeometry;
-
-            var geometry = _step.value;
-            // 设置几何体的颜色
-            var colorArray = formatColor(geometry.color);
-
-            this.__core.setUniform4f('u_color', colorArray[0] / 255, colorArray[1] / 255, colorArray[2] / 255, colorArray[3]); // 准备好参数
-
-
-            var args = [];
-
-            switch (geometry.type) {
-              case "cylinder":
-                {
-                  args = [geometry.x, geometry.y, geometry.z, geometry.radius, geometry.height];
-                  break;
-                }
-
-              case "prism":
-                {
-                  args = [geometry.x, geometry.y, geometry.z, geometry.radius, geometry.height, geometry.num];
-                  break;
-                }
-
-              case "sphere":
-                {
-                  args = [geometry.cx, geometry.cy, geometry.cz, geometry.radius];
-                  break;
-                }
-            } // 启动绘制
-
-
-            (_this$__ThreeGeometry = this.__ThreeGeometry)[geometry.type].apply(_this$__ThreeGeometry, [function (data) {
-              // 通过缓冲区把数据传递给GPU
-              buffer.write(new Float32Array(data.points)).use('a_position', 3, 3, 0); // 调用具体的方法绘制
-
-              if (data.methods == 'StripTriangle') {
-                painter.stripTriangles(0, data.length);
-              } else if (data.methods == 'FanTriangle') {
-                painter.fanTriangles(0, data.length);
-              }
-            }].concat(_toConsumableArray(args)));
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
+      key: "registerChart",
+      value: function registerChart(name, calcFun) {
+        if (name in Puly.charts) {
+          throw new Error('This chart is already defined:' + name);
         }
+
+        Puly.charts[name] = calcFun;
       }
     }]);
 
     return Puly;
-  }(); // 对外暴露调用接口
+  }(); // 挂载内置图表
 
+
+  _defineProperty(Puly, "charts", {});
+
+  _defineProperty(Puly, "theme", void 0);
+
+  for (var key in charts) {
+    Puly.registerChart(key, charts[key]);
+  } // 设置好主题色
+
+
+  Puly.registerTheme({
+    "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+  }); // 对外暴露调用接口
 
   if ((typeof module === "undefined" ? "undefined" : _typeof(module)) === "object" && _typeof(module.exports) === "object") {
     module.exports = Puly;

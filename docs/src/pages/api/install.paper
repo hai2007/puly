@@ -1,0 +1,69 @@
+<template class='doc-view'>
+    <header id='fixed-top'>
+        安装&使用
+    </header>
+    <h2 id="fixed-install">
+        安装并引入
+    </h2>
+    <p>
+        首先你需要通过命令行安装，就像这样：
+    </p>
+    <pre q-code>
+    npm install --save puly
+</pre>
+    <p>
+        安装好了以后，直接引入即可：
+    </p>
+    <pre q-code>
+import Puly from 'puly';
+</pre>
+    <p>
+        或
+    </p>
+    <pre q-code>
+let Puly = require('puly');
+</pre>
+    <h2 id="fixed-use">
+        使用
+    </h2>
+    <p>
+        你需要准备好一个绘图的区域，比如：
+    </p>
+    <pre q-code="html">
+        <div id="root" style="width:400px;height:400px;"></div>
+    </pre>
+    <p>
+        然后我们拿绘制一个柱状图为例：
+    </p>
+    <pre q-code>
+// 创建3d对象
+var puly = new Puly(document.getElementById('root'));
+
+// 设置意图
+puly.setOption({
+    series: [{
+        data: [120, 200, 150, 80, 70, 110, 130],
+        type: "bar"
+    }]
+});
+    </pre>
+    <p>
+        下面是运行的截图：
+    </p>
+    <div class="img-bar"></div>
+    <p>
+        当然，一方面<span class="warn">Puly</span>在创建前可以设置一些内容，比如主题、自定义图表等，具体的请去
+        <a href="#/main/api/api?fixed=top" target="_blank" class="link">接口</a>一节中查看。
+    </p>
+    <p>
+        另一方面，<span class="warn">setOption</span>可配置的内容比较多，请去 <a href="#/main/api/option?fixed=top" target="_blank"
+            class="link">配置项</a>一节中查看。
+    </p>
+</template>
+<style>
+    .img-bar {
+        background-image: url('./image/bar_simple.png');
+        height: 150px;
+        width: 200px;
+    }
+</style>

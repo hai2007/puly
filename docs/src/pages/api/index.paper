@@ -1,0 +1,356 @@
+<template class="api-view">
+    <div class="menu">
+        <h2 @click="loadpage('install','top')" :active="flag=='install'?'yes':'no'">
+            安装&使用
+        </h2>
+        <ul class="normal" :active="flag=='install'?'yes':'no'">
+            <li>
+                <h4 @click='doScroll("install")'>安装并引入</h4>
+            </li>
+            <li>
+                <h4 @click='doScroll("use")'>使用</h4>
+            </li>
+        </ul>
+        <h2 @click="loadpage('api','top')" :active="flag=='api'?'yes':'no'">
+            接口
+        </h2>
+        <ul class="normal" :active="flag=='api'?'yes':'no'">
+            <li>
+                <h4 @click='doScroll("registerTheme")'>设置主题</h4>
+            </li>
+            <li>
+                <h4 @click='doScroll("registerChart")'>自定义图表</h4>
+                <ul>
+                    <li>
+                        <h5 @click='doScroll("registerChart.params")'>params</h5>
+                    </li>
+                    <li>
+                        <h5 @click='doScroll("registerChart.api")'>api</h5>
+                        <ul>
+                            <li>
+                                <h6 @click='doScroll("registerChart.api.color")'>color</h6>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 @click='doScroll("registerChart.return")'>返回值</h5>
+                        <ul>
+                            <li>
+                                <h6 @click='doScroll("registerChart.return.native")'>原生</h6>
+                            </li>
+                            <li>
+                                <h6 @click='doScroll("registerChart.return.item")'>条目</h6>
+                                <ul>
+                                    <li>
+                                        <h6 @click='doScroll("registerChart.return.item-cuboid")'>立方条目</h6>
+                                    </li>
+                                    <li>
+                                        <h6 @click='doScroll("registerChart.return.item-lines")'>线条组条目</h6>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <h6 @click='doScroll("registerChart.return.geometry")'>几何体</h6>
+                                <ul>
+                                    <li>
+                                        <h6 @click='doScroll("registerChart.return.geometry-cylinder")'>圆柱</h6>
+                                    </li>
+                                    <li>
+                                        <h6 @click='doScroll("registerChart.return.geometry-prism")'>棱柱</h6>
+                                    </li>
+                                    <li>
+                                        <h6 @click='doScroll("registerChart.return.geometry-sphere")'>球</h6>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <h2 @click="loadpage('option','top')" :active="flag=='option'?'yes':'no'">
+            配置项
+        </h2>
+        <ul class='tree-menu' :active="flag=='option'?'yes':'no'">
+            <li>
+                <h4 @click='doScroll("data")'>data</h4>
+            </li>
+            <li>
+                <h4 @click='doScroll("xAxis")' q-menu-btn>xAxis</h4>
+                <ul>
+                    <li>
+                        <h5 @click='doScroll("xAxis.show")'>show</h5>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <h4 @click='doScroll("yAxis")' q-menu-btn>yAxis</h4>
+                <ul>
+                    <li>
+                        <h5 @click='doScroll("yAxis.show")'>show</h5>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <h4 @click='doScroll("zAxis")' q-menu-btn>zAxis</h4>
+                <ul>
+                    <li>
+                        <h5 @click='doScroll("zAxis.show")'>show</h5>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <h4 @click='doScroll("series")' q-menu-btn>series</h4>
+                <ul>
+                    <li>
+                        <h5 @click='doScroll("series.bar")' q-menu-btn>type=bar</h5>
+                        <ul>
+                            <li>
+                                <h6 @click='doScroll("series.bar.data")'>data</h6>
+                            </li>
+                            <li>
+                                <h6 @click='doScroll("series.bar.itemStyle")' q-menu-btn>itemStyle</h6>
+                                <ul>
+                                    <li>
+                                        <h6 @click='doScroll("series.bar.itemStyle.colors")'>colors</h6>
+                                    </li>
+                                    <li>
+                                        <h6 @click='doScroll("series.bar.itemStyle.align")'>align</h6>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 @click='doScroll("series.line")' q-menu-btn>type=line</h5>
+                        <ul>
+                            <li>
+                                <h6 @click='doScroll("series.line.data")'>data</h6>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h5 @click='doScroll("series.candlestick")' q-menu-btn>type=candlestick</h5>
+                        <ul>
+                            <li>
+                                <h6 @click='doScroll("series.candlestick.data")'>data</h6>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="view" id='root-view'>
+        <component :is='page'></component>
+    </div>
+</template>
+<script>
+
+    import fixedScroll from '../../service/fixedScroll.js';
+
+    let pages = {
+        install: () => import('./install.paper'),
+        api: () => import('./api.paper'),
+        option: () => import('./option.paper')
+    };
+
+    import qMenuBtn from '../../directives/q-menu-btn.js';
+
+    export default {
+        data() {
+            return {
+                page: null,
+                flag: ""
+            };
+        },
+        mounted() {
+            let urlJson = this.$urlFormat(window.location.href);
+            let routers = urlJson.router;
+            this.loadpage(routers[2] in pages ? routers[2] : "install", urlJson.params.fixed || "top");
+
+        },
+        methods: {
+            loadpage(url, fixedName) {
+                pages[url]().then(data => {
+                    this.page = data.default;
+                    this.flag = url;
+                    this.doScroll(fixedName || 'top');
+                });
+            },
+            doScroll(fixedName) {
+                window.location.href = "#/main/api/" + this.flag + "?fixed=" + fixedName;
+                fixedScroll(fixedName);
+            }
+        },
+        directive: {
+            qMenuBtn
+        },
+    };
+</script>
+<style lang="scss">
+    [quickpaper].api-view {
+        white-space: nowrap;
+
+        &>div {
+            display: inline-block;
+            vertical-align: top;
+            padding: 10px;
+            color: #6e7079;
+            white-space: normal;
+            height: calc(100vh - 74px);
+            overflow: auto;
+
+            &.menu {
+                width: 190px;
+                color: white;
+
+                &>h2 {
+                    font-size: 13px;
+                    cursor: pointer;
+                    margin-top: 30px;
+                    margin-bottom: 10px;
+
+                    &[active='yes'] {
+                        border-left: 2px solid red;
+                        padding-left: 5px;
+                    }
+                }
+            }
+
+            &.view {
+                width: calc(100vw - 190px);
+                background-color: #f3f4fa;
+            }
+        }
+
+        ul.normal {
+            display: none;
+
+            &[active='yes'] {
+                display: block;
+            }
+
+            margin-left: 10px;
+            font-size:12px;
+            cursor: pointer;
+            line-height:2em;
+
+            ul {
+                margin-left: 10px;
+            }
+        }
+
+        .tree-menu {
+            margin-left: 20px !important;
+            user-select: none;
+            display: none;
+
+            &[active='yes'] {
+                display: block;
+            }
+
+            ul {
+                margin-left: 10px;
+            }
+
+            h4,
+            h5,
+            h6 {
+                padding-left: 15px !important;
+                line-height: 30px;
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: 400;
+            }
+
+            &>li:first-child {
+                &:before {
+                    border-left: none;
+                }
+
+                &>ul {
+                    &:before {
+                        height: calc(100% - 30px) !important;
+                        top: 15px;
+                    }
+                }
+            }
+
+            li {
+                position: relative;
+
+                &:before {
+                    display: inline-block;
+                    content: " ";
+                    width: 17px;
+                    height: 30px;
+                    border-width: 0 0 1px 1px;
+                    border-style: dashed;
+                    border-color: black;
+                    position: absolute;
+                    left: -10px;
+                    top: -15px;
+                }
+
+                &:last-child {
+                    ul:before {
+                        display: none;
+                    }
+                }
+
+                ul {
+
+                    &:before {
+                        display: inline-block;
+                        content: " ";
+                        width: 10px;
+                        height: 100%;
+                        border-width: 0 0 0 1px;
+                        border-style: dashed;
+                        border-color: black;
+                        position: absolute;
+                        left: -10px;
+                        top: 10px;
+                    }
+
+                }
+
+            }
+
+            /* 菜单打开关闭控制 */
+            [open] {
+                position: relative;
+
+                &:before {
+                    display: inline-block;
+                    content: " ";
+                    width: 30px;
+                    height: 30px;
+                    background-size: 15px auto;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    position: absolute;
+                    left: -15px;
+                    z-index: 1;
+                }
+            }
+
+            [open='yes']:before {
+                background-image: url('./image/open.png');
+            }
+
+            [open='no'] {
+                &:before {
+                    background-image: url('./image/close.png');
+                }
+
+                &+ul {
+                    display: none;
+                }
+            }
+
+        }
+
+    }
+</style>

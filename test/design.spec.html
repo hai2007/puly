@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../logo.png">
+    <title>puly - 测试 / 主体设计</title>
+    <script src="../dist/puly.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 90vw;
+            height: 90vh;
+            margin: 5vh 5vw;
+            outline: 1px solid red;
+            background-color: rgb(0, 0, 0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+        // 设置好主题色
+        Puly.registerTheme({
+            "colors": ["#c12e34", "#e6b600", "#0098d9", "#2b821d", "#005eaa", "#339ca8", "#cda819", "#32a487"]
+        });
+
+        // 注册图表
+        Puly.registerChart('mybar', function (params, api) {
+
+            var data = params.data;
+
+            var geometry = [];
+            for (var i = 0; i < data.length; i++) {
+                geometry.push({
+
+                    // 表示这是一个特殊的用于拼接图表的
+                    // 这个配置项是为了和通用的集合体等区分
+                    // 比如：type='geometry'表示这是一个几何体
+                    type: "item",
+
+                    // 表示这是一个长方体
+                    name: "cuboid",
+
+                    /**
+                     * 下面的配置，不同的配置不一样
+                     * 当然，可以定义的以及可配置项都提前确定了
+                    */
+
+                    // 长度(可以是负数或0)
+                    length: data[i],
+
+                    // 起点
+                    start: 0,
+
+                    // 底部中心
+                    index: i + 0.5 - data.length * 0.5,
+
+                    // 小条目的大小
+                    size: 0.7,
+
+                    // 颜色
+                    color: api.color(i)
+
+                });
+            }
+
+            return {
+                geometry: geometry
+            };
+
+        });
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+            data: [100, 200, -150, 80, 70, 110, 30, 90],
+            series: [{
+                // data: [120, 200, 150, 80, 70, 110, 130],
+                type: "mybar"
+            }]
+        });
+
+    </script>
+
+</body>
+
+</html>

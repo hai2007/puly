@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>自定义 / 3D图标</title>
+    <script src="https://cdn.jsdelivr.net/npm/puly@1"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+        Puly.registerChart('logo', function (params, api) {
+
+            return {
+                geometry: [
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.6, 0, 0, 1, 0,
+                            0.9, 0.6, 0, 0, 1, 0,
+                            0, 0.6, 0.9, 0, 1, 0,
+                            0.9, 0.6, 0.9, 0, 1, 0
+                        ],
+                        color: "#e875ed"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.3, 0, 0, 1, 0,
+                            0.9, 0.3, 0, 0, 1, 0,
+                            0, 0.3, 0.9, 0, 1, 0,
+                            0.9, 0.3, 0.9, 0, 1, 0
+                        ],
+                        color: "white"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.6, 0.9, 0, 0, 1,
+                            0.9, 0.6, 0.9, 0, 0, 1,
+                            0, 0.3, 0.9, 0, 0, 1,
+                            0.9, 0.3, 0.9, 0, 0, 1
+                        ],
+                        color: "#60bd65"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.6, 0, 0, 0, -1,
+                            0.9, 0.6, 0, 0, 0, -1,
+                            0, 0.3, 0, 0, 0, -1,
+                            0.9, 0.3, 0, 0, 0, -1
+                        ],
+                        color: "white"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.3, 0, -1, 0, 0,
+                            0, 0.6, 0, -1, 0, 0,
+                            0, 0.3, 0.9, -1, 0, 0,
+                            0, 0.6, 0.9, -1, 0, 0,
+                        ],
+                        color: "white"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.9, 0.3, 0, -1, 0, 0,
+                            0.9, 0.6, 0, -1, 0, 0,
+                            0.9, 0.3, 0.9, -1, 0, 0,
+                            0.9, 0.6, 0.9, -1, 0, 0,
+                        ],
+                        color: "#f8c85a"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.6, 0.6, 0, -1, 0, 0,
+                            0.6, 0.9, 0, -1, 0, 0,
+                            0.6, 0.6, 0.6, -1, 0, 0,
+                            0.6, 0.9, 0.6, -1, 0, 0,
+                        ],
+                        color: "#f8c85a"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.3, 0.6, 0, -1, 0, 0,
+                            0.3, 0.9, 0, -1, 0, 0,
+                            0.3, 0.6, 0.3, -1, 0, 0,
+                            0.3, 0.9, 0.3, -1, 0, 0,
+                        ],
+                        color: "white"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.9, 0.6, 0, 0, 1,
+                            0.6, 0.9, 0.6, 0, 0, 1,
+                            0, 0.6, 0.6, 0, 0, 1,
+                            0.6, 0.6, 0.6, 0, 0, 1
+                        ],
+                        color: "#60bd65"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.9, 0.3, 0, 0, -1,
+                            0.3, 0.9, 0.3, 0, 0, -1,
+                            0, 0.6, 0.3, 0, 0, -1,
+                            0.3, 0.6, 0.3, 0, 0, -1
+                        ],
+                        color: "white"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.3, 0.9, 0, 0, 0, -1,
+                            0.6, 0.9, 0, 0, 0, -1,
+                            0.3, 0.6, 0, 0, 0, -1,
+                            0.6, 0.6, 0, 0, 0, -1
+                        ],
+                        color: "white"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.6, 0.3, -1, 0, 0,
+                            0, 0.9, 0.3, -1, 0, 0,
+                            0, 0.6, 0.6, -1, 0, 0,
+                            0, 0.9, 0.6, -1, 0, 0,
+                        ],
+                        color: "white"
+                    }, {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0, 0.9, 0.6, 0, 1, 0,
+                            0, 0.9, 0.3, 0, 1, 0,
+                            0.6, 0.9, 0.6, 0, 1, 0,
+                            0.3, 0.9, 0.3, 0, 1, 0,
+                            0.6, 0.9, 0, 0, 1, 0,
+                            0.3, 0.9, 0, 0, 1, 0
+                        ],
+                        color: "#e875ed"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.3, 0.3, 0.9, 0, 0, 1,
+                            0.6, 0.3, 0.9, 0, 0, 1,
+                            0.3, 0, 0.9, 0, 0, 1,
+                            0.6, 0, 0.9, 0, 0, 1
+                        ],
+                        color: "#60bd65"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.6, 0.3, 0.6, 0, 0, 1,
+                            0.9, 0.3, 0.6, 0, 0, 1,
+                            0.6, 0, 0.6, 0, 0, 1,
+                            0.9, 0, 0.6, 0, 0, 1
+                        ],
+                        color: "#60bd65"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.9, 0.3, 0.3, 1, 0, 0,
+                            0.9, 0.3, 0.6, 1, 0, 0,
+                            0.9, 0, 0.3, 0, 1, 0,
+                            0.9, 0, 0.6, 0, 1, 0
+                        ],
+                        color: "#f8c85a"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.6, 0.3, 0.6, 1, 0, 0,
+                            0.6, 0.3, 0.9, 1, 0, 0,
+                            0.6, 0, 0.6, 0, 1, 0,
+                            0.6, 0, 0.9, 0, 1, 0
+                        ],
+                        color: "#f8c85a"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.3, 0.3, 0.3, -1, 0, 0,
+                            0.3, 0.3, 0.9, -1, 0, 0,
+                            0.3, 0, 0.3, 0, -1, 0,
+                            0.3, 0, 0.9, 0, -1, 0
+                        ],
+                        color: "white"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.3, 0.3, 0.3, 0, 0, -1,
+                            0.9, 0.3, 0.3, 0, 0, -1,
+                            0.3, 0, 0.3, 0, 0, -1,
+                            0.9, 0, 0.3, 0, 0, -1
+                        ],
+                        color: "white"
+                    },
+                    {
+                        type: "native",
+                        methods: "StripTriangle",
+                        points: [
+                            0.3, 0, 0.9, 0, -1, 0,
+                            0.6, 0, 0.9, 0, -1, 0,
+                            0.3, 0, 0.3, 0, -1, 0,
+                            0.6, 0, 0.6, 0, -1, 0,
+                            0.9, 0, 0.3, 0, -1, 0,
+                            0.9, 0, 0.6, 0, -1, 0,
+                        ],
+                        color: "white"
+                    },
+
+                ]
+            }
+
+        });
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+            series: [{
+                type: "logo"
+            }]
+        });
+
+    </script>
+
+</body>
+
+</html>

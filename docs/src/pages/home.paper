@@ -1,0 +1,114 @@
+<template>
+    <div class="tips">
+        特别感谢
+        <a class="image3d" href="https://hai2007.gitee.io/image3d/" target="_blank">Image3D.js</a>
+        等前期的技术积累~
+    </div>
+    <div class="top-content">
+        <h2>Puly.js</h2>
+        <div>
+            一个基于 JavaScript 的开源可视化3D图表库
+        </div>
+        <div>
+            <a class="doc" target="_blank" href="#/main/api/install?fixed=top">
+                文档
+            </a>
+            <a class="demo" target="_blank" href="#/main/example">
+                示例
+            </a>
+        </div>
+    </div>
+    <div class="warn-center">
+        📣 Puly目前处于初期探索和孵化阶段，欢迎给出宝贵<a href="https://github.com/hai2007/puly/issues" target="_blank">建议</a>！
+    </div>
+
+</template>
+<style lang="scss">
+    [quickpaper] {
+        &>.tips {
+            text-align: center;
+            background-color: #1a1b23;
+            color: #9feaf9;
+
+            &>a {
+                color: #74b1be;
+                text-decoration: underline;
+                padding: 0 10px;
+                line-height: 60px;
+                display: inline-block;
+
+                &:hover {
+                    font-weight: 800;
+                }
+
+                &.image3d {
+                    background-image: url('./image/image3d.png');
+                    background-size: auto 50%;
+                    background-repeat: no-repeat;
+                    padding-left: 40px;
+                    background-position: 10px center;
+                }
+
+            }
+        }
+
+        &>.top-content {
+            color: white;
+            width: 700px;
+            margin: auto;
+            background-image: url('./image/logo.png');
+            background-size: auto 80%;
+            background-repeat: no-repeat;
+            background-position: right center;
+
+            &>h2 {
+                font-size: 50px;
+                padding: 10px 0;
+                margin-top: 50px;
+            }
+
+            &>div {
+                padding: 30px 0;
+
+                &>a {
+                    min-width: 150px;
+                    padding: 15px 10px;
+                    border-radius: 30px;
+                    font-size: 16px;
+                    margin: 10px;
+                    display: inline-block;
+                    text-align: center;
+                    cursor: pointer;
+
+                    &:hover {
+                        box-shadow: 0px 5px 10px 0 rgba(252, 252, 252, 0.2);
+                    }
+
+                    &.doc {
+                        background-color: #60bd65;
+                        color: white;
+                        border: none;
+                    }
+
+                    &.demo {
+                        border: 2px solid #60bd65;
+                        color: #60bd65;
+                    }
+                }
+            }
+        }
+
+        &>.warn-center {
+            text-align: center;
+            color: white;
+            padding: 10px 0;
+            margin-top: 20px;
+
+            &>a {
+                padding: 5px;
+                color: #2196f3;
+                text-decoration: underline;
+            }
+        }
+    }
+</style>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../logo.png">
+    <title>puly - 测试 / 垂直居中柱状图</title>
+    <script src="../dist/puly.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #root {
+            width: 90vw;
+            height: 90vh;
+            margin: 5vh 5vw;
+            outline: 1px solid red;
+            background-color: rgb(0, 0, 0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+            series: [{
+                data: [100, 200, 150, 80, 70, 110, 130],
+                // data: [[120, 89, 200], [200, 99, 73], [150, -100, -109], [80, 70, 110]],
+                type: "bar",
+                itemStyle: {
+                    align: 'middle',
+                    colors: true
+                }
+            }]
+        });
+
+    </script>
+
+</body>
+
+</html>

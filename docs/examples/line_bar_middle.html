@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>柱状图 / 居中柱折图</title>
+    <script src="https://cdn.jsdelivr.net/npm/puly@1"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+          // 设置好主题色
+          Puly.registerTheme({
+            "colors": ["white"]
+        });
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+            data: [120, 200, 150, 80, 70, 110, 130, 150, 80, 70, 110, 130],
+            series: [{
+                type: "line"
+            }, {
+                type: "bar",
+                itemStyle: {
+                    align: "middle"
+                }
+            }]
+        });
+
+    </script>
+
+</body>
+
+</html>

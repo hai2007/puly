@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>柱状图 / 简单柱状图</title>
+    <script src="https://cdn.jsdelivr.net/npm/puly@1"></script>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root"></div>
+    <script>
+
+        // 创建3d对象
+        var puly = new Puly(document.getElementById('root'));
+
+        // 设置意图
+        puly.setOption({
+            series: [{
+                data: [120, 200, 150, 80, 70, 110, 130],
+                type: "bar"
+            }]
+        });
+
+    </script>
+
+</body>
+
+</html>
