@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.2.4
+ * version 1.2.5-alpha.0
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sun May 08 2022 14:08:51 GMT+0800 (GMT+08:00)
+ * Date:Sun May 08 2022 15:53:48 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1816,19 +1816,20 @@
 
   var textFactory = (function (text) {
     var canvas = document.createElement('canvas');
-    var width = text.content.length * 16;
-    var height = 16; // 根据文字设置画布大小
+    var height = 16;
+    var width = text.content.length * height; // 根据文字设置画布大小
 
     canvas.width = width;
     canvas.height = height;
     var painter = canvas.getContext("2d");
-    painter.font = "14px sans-serif";
+    painter.font = height * 0.9 + "px sans-serif";
     painter.textBaseline = 'middle';
     painter.textAlign = 'center';
     painter.fillStyle = text.color;
+    painter.clearRect(0, 0, width, height);
     painter.fillText(text.content, width * 0.5, height * 0.5);
     return {
-      data: painter.getImageData(0, 0, width, height),
+      data: canvas,
       width: width,
       height: height
     };
@@ -2138,7 +2139,7 @@
                 var data = [// 顶点坐标3，法向量3，纹理坐标2
                 x - w, y + h, z, 0, 0, 1, 0.0, 0.0, x - w, y - h, z, 0, 0, 1, 0.0, 1.0, x + w, y + h, z, 0, 0, 1, 1.0, 0.0, x + w, y - h, z, 0, 0, 1, 1.0, 1.0];
 
-                _this2.buffer.write(new Float32Array(data)).use('a_position', 3, 8, 0).use('a_normal', 3, 8, 3).use('a_textcoord', 2, 8, 5); // 创建纹理对象并写入纹理
+                _this2.buffer.write(new Float32Array(data)).use('a_position', 3, 8, 0).use('a_normal', 3, 8, 3).use('a_textcoord', 2, 8, 6); // 创建纹理对象并写入纹理
 
 
                 _this2.image3d.Texture2D(1).write(img.data); // 设置纹理单元

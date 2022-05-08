@@ -215,7 +215,7 @@ class Puly {
                         x + w, y - h, z, 0, 0, 1, 1.0, 1.0
                     ]
 
-                    this.buffer.write(new Float32Array(data)).use('a_position', 3, 8, 0).use('a_normal', 3, 8, 3).use('a_textcoord', 2, 8, 5)
+                    this.buffer.write(new Float32Array(data)).use('a_position', 3, 8, 0).use('a_normal', 3, 8, 3).use('a_textcoord', 2, 8, 6)
 
                     // 创建纹理对象并写入纹理
                     this.image3d.Texture2D(1).write(img.data)

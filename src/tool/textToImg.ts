@@ -1,8 +1,8 @@
 export default text => {
 
     let canvas = document.createElement('canvas')
-    let width = text.content.length * 16
     let height = 16
+    let width = text.content.length * height
 
     // 根据文字设置画布大小
     canvas.width = width
@@ -10,15 +10,16 @@ export default text => {
 
     let painter = canvas.getContext("2d")
 
-    painter.font = "14px sans-serif"
+    painter.font = height*0.9 + "px sans-serif"
     painter.textBaseline = 'middle'
     painter.textAlign = 'center'
     painter.fillStyle = text.color
 
+    painter.clearRect(0, 0, width, height)
     painter.fillText(text.content, width * 0.5, height * 0.5)
 
     return {
-        data: painter.getImageData(0, 0, width, height),
+        data: canvas,
         width,
         height
     }
