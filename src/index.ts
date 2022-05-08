@@ -15,6 +15,7 @@ import shaderVertex from './shader-vertex'
 import shaderFragment from './shader-fragment'
 
 import axisFactory from './axis/index'
+import textFactory from './tool/textToImg'
 
 class Puly {
 
@@ -185,16 +186,57 @@ class Puly {
              */
 
             for (let aixsName of ["xAxis", "yAxis", "zAxis"]) {
-                if (!(aixsName in this.option) || (isBoolean(this.option[aixsName].show) && this.option[aixsName].show)) {
-                    temp.geometry.push(...axisFactory[aixsName]())
+                if (!(aixsName in this.option) || !(isBoolean(this.option[aixsName].show)) || this.option[aixsName].show) {
+                    temp.geometry.push(...axisFactory[aixsName](this.option[aixsName] || {}))
                 }
             }
 
             for (let geometry of temp.geometry) {
-                let data = geometry.data
-                this.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
-                this.image3d.setUniformFloat("u_color", geometry.color[0], geometry.color[1], geometry.color[2], geometry.color[3])
-                this.painter["draw" + data.methods](0, data.length)
+
+                // 如果是文字
+                if (geometry.type == 'text') {
+                    this.image3d.setUniformInt('textureType', 2)
+
+                    let img = textFactory({
+                        content: geometry.content,
+                        color: geometry.color
+                    })
+
+                    let { x, y, z } = geometry
+                    let h = 0.02
+                    let w = img.width / img.height * h
+
+                    // 先只考虑d='z'
+                    let data = [
+                        // 顶点坐标3，法向量3，纹理坐标2
+                        x - w, y + h, z, 0, 0, 1, 0.0, 0.0,
+                        x - w, y - h, z, 0, 0, 1, 0.0, 1.0,
+                        x + w, y + h, z, 0, 0, 1, 1.0, 0.0,
+                        x + w, y - h, z, 0, 0, 1, 1.0, 1.0
+                    ]
+
+                    this.buffer.write(new Float32Array(data)).use('a_position', 3, 8, 0).use('a_normal', 3, 8, 3).use('a_textcoord', 2, 8, 5)
+
+                    // 创建纹理对象并写入纹理
+                    this.image3d.Texture2D(1).write(img.data)
+
+                    // 设置纹理单元
+                    this.image3d.setUniformInt('u_sampler', 1)
+
+                    // 绘制
+                    this.painter.drawStripTriangle(0, 4)
+
+                }
+
+                // 别的就是普通几何拼接
+                else {
+                    this.image3d.setUniformInt('textureType', 1)
+
+                    let data = geometry.data
+                    this.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3)
+                    this.image3d.setUniformFloat("u_color", geometry.color[0], geometry.color[1], geometry.color[2], geometry.color[3])
+                    this.painter["draw" + data.methods](0, data.length)
+                }
             }
         }
 

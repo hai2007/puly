@@ -1,4 +1,22 @@
-export default () => {
+export default (config) => {
+
+    let text = []
+    if (config.value) {
+
+        let dist = 1 / Math.ceil(config.value.length / 2)
+        for (let index = 0; index < config.value.length; index++) {
+            text.push({
+                type: "text",
+                color: "white",
+                content: config.value[index],
+                x: (index - (config.value.length - 1) * 0.5) * dist,
+                y: 0,
+                z: 0.1,
+                d: "z"
+            })
+        }
+    }
+
     return [{
         data: {
             length: 2,
@@ -20,5 +38,5 @@ export default () => {
             ]
         },
         color: [1, 0, 0, 1]
-    }]
+    }, ...text]
 }

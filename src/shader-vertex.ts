@@ -11,6 +11,9 @@ export default `
     varying vec3 v_LDirection;
     varying vec3 v_normal;
 
+    attribute vec2 a_textcoord; // 纹理映射
+    varying vec2 v_textcoord;
+
     void main(){
 
         vec4 temp = u_matrix * a_position;
@@ -27,6 +30,8 @@ export default `
         v_LDirection = vec3(gl_Position) - u_LPosition;
 
         v_normal = vec3(u_matrix * vec4(a_normal, 1));
+
+        v_textcoord=a_textcoord;
 
     }
 `

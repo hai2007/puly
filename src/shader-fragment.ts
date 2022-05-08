@@ -10,6 +10,11 @@ export default `
     varying vec3 v_LDirection; // 光线方向
     varying vec3 v_normal;     // 法线方向
 
+    uniform sampler2D u_sampler; // 纹理单元
+    varying vec2 v_textcoord;
+
+    uniform int textureType; // 纹理类型，1无，2二维纹理
+
     void main()
     {
 
@@ -20,6 +25,15 @@ export default `
         // 计算序列化后的光方向和法线方向的点乘
         float dotValue = max(abs(dot(LDirection, normal)), 0.4);
 
-        gl_FragColor = u_color * u_LColor * dotValue;
+        vec4 color = u_color;
+
+        // 二维纹理
+        if(textureType==2){
+            color = texture2D(u_sampler, v_textcoord);
+        }
+
+        gl_FragColor = color * u_LColor * dotValue;
+
+
     }
 `

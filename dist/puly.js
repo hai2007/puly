@@ -4,12 +4,12 @@
  *
  * author 你好2007 < https://hai2007.gitee.io/sweethome >
  *
- * version 1.2.1
+ * version 1.2.4
  *
  * Copyright (c) 2021-2022 hai2007 走一步，再走一步。
  * Released under the MIT license
  *
- * Date:Sat May 07 2022 19:30:30 GMT+0800 (GMT+08:00)
+ * Date:Sun May 08 2022 14:08:51 GMT+0800 (GMT+08:00)
  */
 (function () {
   'use strict';
@@ -1731,12 +1731,30 @@
   }
 
   // 顶点着色器
-  var shaderVertex = "\n\n    attribute vec4 a_position; // \u9876\u70B9\u5750\u6807\n    uniform mat4 u_matrix;     // \u53D8\u6362\u77E9\u9635\n    uniform vec3 u_LPosition;  // \u5149\u7684\u4F4D\u7F6E\n    attribute vec3 a_normal;\n\n    varying vec3 v_LDirection;\n    varying vec3 v_normal;\n\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n        // \u70B9\u5149\u6E90\u65B9\u5411\n        // \u9876\u70B9\u7684\u4F4D\u7F6E\u5E94\u8BE5\u4F7F\u7528\u8BA1\u7B97\u8FC7\u7684\n        v_LDirection = vec3(gl_Position) - u_LPosition;\n\n        v_normal = vec3(u_matrix * vec4(a_normal, 1));\n\n    }\n";
+  var shaderVertex = "\n\n    attribute vec4 a_position; // \u9876\u70B9\u5750\u6807\n    uniform mat4 u_matrix;     // \u53D8\u6362\u77E9\u9635\n    uniform vec3 u_LPosition;  // \u5149\u7684\u4F4D\u7F6E\n    attribute vec3 a_normal;\n\n    varying vec3 v_LDirection;\n    varying vec3 v_normal;\n\n    attribute vec2 a_textcoord; // \u7EB9\u7406\u6620\u5C04\n    varying vec2 v_textcoord;\n\n    void main(){\n\n        vec4 temp = u_matrix * a_position;\n\n        // \u8868\u793A\u773C\u775B\u8DDD\u79BBvec4(0.0,0.0,1.0)\u7684\u8DDD\u79BB\n        float dist = 2.0;\n\n        // \u4F7F\u7528\u6295\u5F71\u76F4\u63A5\u8BA1\u7B97\n        // \u6B64\u5904\u8981\u6CE8\u610Fz\u8F74\u627F\u663E\u793A\u548C\u5B9E\u9645\u7684\u65B9\u5411\u662F\u76F8\u53CD\u7684\n        gl_Position = vec4((dist + 1.0) * temp.x / (dist + temp.z), (dist + 1.0) * temp.y / (dist + temp.z), temp.z, 1.0);\n\n        // \u70B9\u5149\u6E90\u65B9\u5411\n        // \u9876\u70B9\u7684\u4F4D\u7F6E\u5E94\u8BE5\u4F7F\u7528\u8BA1\u7B97\u8FC7\u7684\n        v_LDirection = vec3(gl_Position) - u_LPosition;\n\n        v_normal = vec3(u_matrix * vec4(a_normal, 1));\n\n        v_textcoord=a_textcoord;\n\n    }\n";
 
   // 片段着色器
-  var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(abs(dot(LDirection, normal)), 0.4);\n\n        gl_FragColor = u_color * u_LColor * dotValue;\n    }\n";
+  var shaderFragment = "\n    precision mediump float;\n\n    uniform vec4 u_LColor; // \u5149\u989C\u8272\n    uniform vec4 u_color;  // \u9876\u70B9\u989C\u8272\n\n    varying vec3 v_LDirection; // \u5149\u7EBF\u65B9\u5411\n    varying vec3 v_normal;     // \u6CD5\u7EBF\u65B9\u5411\n\n    uniform sampler2D u_sampler; // \u7EB9\u7406\u5355\u5143\n    varying vec2 v_textcoord;\n\n    uniform int textureType; // \u7EB9\u7406\u7C7B\u578B\uFF0C1\u65E0\uFF0C2\u4E8C\u7EF4\u7EB9\u7406\n\n    void main()\n    {\n\n        // \u5148\u5BF9\u65B9\u5411\u8FDB\u884C\u5E8F\u5217\u5316\uFF0C\u4F7F\u5F97\u5411\u91CF\u957F\u5EA6\u4E3A1\n        vec3 LDirection = normalize(v_LDirection);\n        vec3 normal = normalize(v_normal);\n\n        // \u8BA1\u7B97\u5E8F\u5217\u5316\u540E\u7684\u5149\u65B9\u5411\u548C\u6CD5\u7EBF\u65B9\u5411\u7684\u70B9\u4E58\n        float dotValue = max(abs(dot(LDirection, normal)), 0.4);\n\n        vec4 color = u_color;\n\n        // \u4E8C\u7EF4\u7EB9\u7406\n        if(textureType==2){\n            color = texture2D(u_sampler, v_textcoord);\n        }\n\n        gl_FragColor = color * u_LColor * dotValue;\n\n\n    }\n";
 
-  var xAxis = (function () {
+  var xAxis = (function (config) {
+    var text = [];
+
+    if (config.value) {
+      var dist = 1 / Math.ceil(config.value.length / 2);
+
+      for (var index = 0; index < config.value.length; index++) {
+        text.push({
+          type: "text",
+          color: "white",
+          content: config.value[index],
+          x: (index - (config.value.length - 1) * 0.5) * dist,
+          y: 0,
+          z: 0.1,
+          d: "z"
+        });
+      }
+    }
+
     return [{
       data: {
         length: 2,
@@ -1751,7 +1769,7 @@
         points: [1.3, 0, 0, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1, 1.25, -0.02, 0.02, 0, 0, 1, 1.25, -0.02, -0.02, 0, 0, 1, 1.25, 0.02, -0.02, 0, 0, 1, 1.25, 0.02, 0.02, 0, 0, 1]
       },
       color: [1, 0, 0, 1]
-    }];
+    }].concat(text);
   });
 
   var yAxis = (function () {
@@ -1795,6 +1813,26 @@
     yAxis: yAxis,
     zAxis: zAxis
   };
+
+  var textFactory = (function (text) {
+    var canvas = document.createElement('canvas');
+    var width = text.content.length * 16;
+    var height = 16; // 根据文字设置画布大小
+
+    canvas.width = width;
+    canvas.height = height;
+    var painter = canvas.getContext("2d");
+    painter.font = "14px sans-serif";
+    painter.textBaseline = 'middle';
+    painter.textAlign = 'center';
+    painter.fillStyle = text.color;
+    painter.fillText(text.content, width * 0.5, height * 0.5);
+    return {
+      data: painter.getImageData(0, 0, width, height),
+      width: width,
+      height: height
+    };
+  });
 
   var bar = (function (params, api) {
     var data = params.data;
@@ -2069,10 +2107,10 @@
           for (var _i = 0, _arr = ["xAxis", "yAxis", "zAxis"]; _i < _arr.length; _i++) {
             var aixsName = _arr[_i];
 
-            if (!(aixsName in _this2.option) || isBoolean(_this2.option[aixsName].show) && _this2.option[aixsName].show) {
+            if (!(aixsName in _this2.option) || !isBoolean(_this2.option[aixsName].show) || _this2.option[aixsName].show) {
               var _temp$geometry;
 
-              (_temp$geometry = temp.geometry).push.apply(_temp$geometry, _toConsumableArray(axisFactory[aixsName]()));
+              (_temp$geometry = temp.geometry).push.apply(_temp$geometry, _toConsumableArray(axisFactory[aixsName](_this2.option[aixsName] || {})));
             }
           }
 
@@ -2082,13 +2120,46 @@
           try {
             for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
               var _geometry = _step3.value;
-              var data = _geometry.data;
 
-              _this2.buffer.write(new Float32Array(data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+              // 如果是文字
+              if (_geometry.type == 'text') {
+                _this2.image3d.setUniformInt('textureType', 2);
 
-              _this2.image3d.setUniformFloat("u_color", _geometry.color[0], _geometry.color[1], _geometry.color[2], _geometry.color[3]);
+                var img = textFactory({
+                  content: _geometry.content,
+                  color: _geometry.color
+                });
+                var x = _geometry.x,
+                    y = _geometry.y,
+                    z = _geometry.z;
+                var h = 0.02;
+                var w = img.width / img.height * h; // 先只考虑d='z'
 
-              _this2.painter["draw" + data.methods](0, data.length);
+                var data = [// 顶点坐标3，法向量3，纹理坐标2
+                x - w, y + h, z, 0, 0, 1, 0.0, 0.0, x - w, y - h, z, 0, 0, 1, 0.0, 1.0, x + w, y + h, z, 0, 0, 1, 1.0, 0.0, x + w, y - h, z, 0, 0, 1, 1.0, 1.0];
+
+                _this2.buffer.write(new Float32Array(data)).use('a_position', 3, 8, 0).use('a_normal', 3, 8, 3).use('a_textcoord', 2, 8, 5); // 创建纹理对象并写入纹理
+
+
+                _this2.image3d.Texture2D(1).write(img.data); // 设置纹理单元
+
+
+                _this2.image3d.setUniformInt('u_sampler', 1); // 绘制
+
+
+                _this2.painter.drawStripTriangle(0, 4);
+              } // 别的就是普通几何拼接
+              else {
+                _this2.image3d.setUniformInt('textureType', 1);
+
+                var _data = _geometry.data;
+
+                _this2.buffer.write(new Float32Array(_data.points)).use('a_position', 3, 6, 0).use('a_normal', 3, 6, 3);
+
+                _this2.image3d.setUniformFloat("u_color", _geometry.color[0], _geometry.color[1], _geometry.color[2], _geometry.color[3]);
+
+                _this2.painter["draw" + _data.methods](0, _data.length);
+              }
             }
           } catch (err) {
             _iterator3.e(err);
