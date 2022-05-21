@@ -39,9 +39,9 @@ var fixedScroll =__etcpack__scope_args__.default;
 
 
     let pages = {
-        install: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle5.js','39'),
-        api: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle6.js','40'),
-        option: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle7.js','41')
+        install: () => window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle5.js','39'),
+        api: () => window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle6.js','40'),
+        option: () => window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle7.js','41')
     };
 
     __etcpack__scope_args__=window.__etcpack__getBundle('38');

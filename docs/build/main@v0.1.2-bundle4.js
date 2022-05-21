@@ -73,28 +73,28 @@ window.__etcpack__bundleSrc__['44']=function(){
     var __etcpack__scope_args__;
     __etcpack__scope_bundle__.default= {
   bar_simple: function bar_simple() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle8.js','45');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle8.js','45');
   },
   bar_colors: function bar_colors() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle9.js','46');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle9.js','46');
   },
   custom_logo: function custom_logo() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle10.js','47');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle10.js','47');
   },
   line_bar: function line_bar() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle11.js','48');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle11.js','48');
   },
   k_simple: function k_simple() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle12.js','49');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle12.js','49');
   },
   bar_mult: function bar_mult() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle13.js','50');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle13.js','50');
   },
   line_bar_middle: function line_bar_middle() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle14.js','51');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle14.js','51');
   },
   custom_geometry: function custom_geometry() {
-    return window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle15.js','52');
+    return window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle15.js','52');
   }
 };
   

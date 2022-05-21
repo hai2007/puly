@@ -40,9 +40,9 @@ var uiSearch =__etcpack__scope_args__.default;
 
 
     let pages = {
-        home: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle2.js','31'),
-        api: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle3.js','32'),
-        example: () => window.__etcpack__getLazyBundle('./build/main@v0.1.1-bundle4.js','33')
+        home: () => window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle2.js','31'),
+        api: () => window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle3.js','32'),
+        example: () => window.__etcpack__getLazyBundle('./build/main@v0.1.2-bundle4.js','33')
     };
 
     __etcpack__scope_bundle__.default= {
