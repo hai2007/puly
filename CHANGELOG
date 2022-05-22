@@ -16,3 +16,7 @@ v1.2.4:
     changes:
       - 修复刻度尺对show错误解析
       - 新增文字绘制(实验阶段，未对外暴露文档)
+v1.2.6:
+    date:2022-05-22
+    changes:
+      - types新增setOption对象方法

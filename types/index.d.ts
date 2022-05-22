@@ -1,4 +1,5 @@
 import themeType from './theme'
+import optionType from './option'
 
 declare class Puly {
 
@@ -18,6 +19,11 @@ declare class Puly {
      * @param calcFun 图表生成函数
      */
     static registerChart(name: string, calcFun: Function)
+
+    /**
+    * 设置配置
+    */
+    setOption(option: optionType): this
 
 }
 

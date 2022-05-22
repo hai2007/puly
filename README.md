@@ -8,7 +8,6 @@
 <p>
   <a href="https://hai2007.gitee.io/npm-downloads?interval=7&packages=puly"><img src="https://img.shields.io/npm/dm/puly.svg" alt="downloads"></a>
   <a href="https://www.npmjs.com/package/puly"><img src="https://img.shields.io/npm/v/puly.svg" alt="Version"></a>
-     <a href="https://www.jsdelivr.com/package/npm/puly"><img src="https://data.jsdelivr.com/v1/package/npm/puly/badge" alt="CDN"></a>
   <a href="https://github.com/hai2007/puly/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/puly.svg" alt="License"></a>
   <a href="https://github.com/hai2007/puly" target='_blank'><img alt="GitHub repo stars" src="https://img.shields.io/github/stars/hai2007/puly?style=social"></a>
 </p>
@@ -33,10 +32,10 @@ import Puly from 'puly';
 或
 
 ```html
-<script src='https://cdn.jsdelivr.net/npm/puly'></script>
+<script src='https://unpkg.com/puly'></script>
 ```
 
-> 当然，CDN方式我们建议你携带版本号，比如：https://cdn.jsdelivr.net/npm/puly@1
+> 当然，CDN方式我们建议你携带版本号，比如：https://unpkg.com/puly@1
 
 如果是commonjs规范，请使用这种方式引入：
 
